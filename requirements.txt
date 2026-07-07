@@ -1,0 +1,10 @@
+# CPU-only torch — install with:
+# pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cpu
+torch==2.12.1
+torchvision==0.27.1
+fastapi[standard]==0.139.0
+pillow==12.3.0
+python-multipart==0.0.32
+httpx==0.28.1
+pydantic-settings==2.14.2
+prometheus-client==0.25.0
