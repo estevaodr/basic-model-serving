@@ -553,17 +553,15 @@ def test_predict_upload(sample_jpeg_bytes):
 | A4 | ResNet-50 CPU inference <100ms for <1MB images on dev hardware | API-03 | Phase 6 load test validates; may need `torch_num_threads` tuning |
 | A5 | `weights.meta["categories"]` provides human-readable ImageNet labels | Code Examples | Verify at runtime; fallback to class index if meta missing |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Dual registration on `/predict` in OpenAPI**
+1. **Dual registration on `/predict` in OpenAPI** — RESOLVED
    - What we know: FastAPI supports multiple operations; content-type negotiation varies
-   - What's unclear: Whether OpenAPI 3.1 auto-documents both without collision
-   - Recommendation: Planner adds spike task — if collision, use multipart-only with `image_url` Form field (both inputs via multipart, still one endpoint)
+   - Resolution: Plan 01-03 Task 1 implements dual plain `def` handlers first; if OpenAPI collision occurs, fallback to single multipart endpoint with optional `file` UploadFile and `image_url` Form field (mutual exclusivity, 422 if both/neither). No separate spike plan — fallback is inline in 01-03-PLAN.md Task 1 action.
 
-2. **First-run model weight download**
-   - What we know: torchvision downloads weights to `~/.cache/torch` on first load
-   - What's unclear: Whether Phase 1 should pre-download in setup script or accept first-start latency
-   - Recommendation: Document in README; optional `python -c "from app.models.resnet import ResNetClassifier; ResNetClassifier()"` warmup command; Phase 2 bakes weights into image
+2. **First-run model weight download** — RESOLVED
+   - What we know: torchvision downloads weights to `~/.cache/torch` on first load (~100MB)
+   - Resolution: Accept first-start latency in Phase 1; document in plan 01-02 verification and SUMMARY (no pre-download setup script). Optional manual warmup: `python -c "from app.models.resnet import ResNetClassifier; ResNetClassifier()"`. Phase 2 bakes weights into container image.
 
 ## Environment Availability
 
