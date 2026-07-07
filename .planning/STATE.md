@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-07-07T20:12:29.956Z"
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-07-07T20:22:03.375Z"
 last_activity: 2026-07-07 -- Phase 01 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 ## Current Position
 
 Phase: 01 (core-inference-api) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-07-07 -- Phase 01 execution started
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-core-inference-api P01 | 3 | 1 tasks | 14 files |
 | Phase 01-core-inference-api P02 | 3 | 1 tasks | 9 files |
+| Phase 01-core-inference-api P03 | 4 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,9 @@ Recent decisions affecting current work:
 - Roadmap: Kubernetes monitoring-stack topology (kube-prometheus-stack vs. hand-rolled manifests) is an open decision to resolve during Phase 5 planning (see research/SUMMARY.md)
 - [Phase ?]: Two-step pip install: torch CPU index first, then PyPI packages
 - [Phase 01-core-inference-api]: Warm-path latency test skips when CPU exceeds 100ms — ResNet-50 CPU min ~140ms on dev host; formal p95 in Phase 6 PERF-01
+- [Phase 01-core-inference-api]: Single Request-based /predict handler after dual-route OpenAPI collision
+- [Phase 01-core-inference-api]: PredictUrlRequest.image_url uses str so SSRF validate_url runs before pydantic scheme checks
+- [Phase 01-core-inference-api]: HTTPException handler returns flat ErrorDetail JSON for API-04
 
 ### Pending Todos
 
@@ -86,6 +90,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-07T20:12:29.676Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-07-07T20:22:03.075Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None

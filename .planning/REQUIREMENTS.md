@@ -10,10 +10,10 @@ Requirements for initial release. Each maps to roadmap phases.
 ### API
 
 - [x] **API-01**: User can `POST /predict` with an image file upload and receive top-5 predictions with confidence scores
-- [ ] **API-02**: User can `POST /predict` with an image URL and receive top-5 predictions with confidence scores
+- [x] **API-02**: User can `POST /predict` with an image URL and receive top-5 predictions with confidence scores
 - [x] **API-03**: API responds in <100ms for images <1MB
-- [ ] **API-04**: API returns structured, typed 4xx JSON errors for invalid input (bad file type, corrupt image, oversized upload, non-image/unreachable URL) instead of raw 500s
-- [ ] **API-05**: API rejects unsafe image URLs (private/loopback/link-local IPs, non-http(s) schemes, no auto-redirect-follow) to prevent SSRF
+- [x] **API-04**: API returns structured, typed 4xx JSON errors for invalid input (bad file type, corrupt image, oversized upload, non-image/unreachable URL) instead of raw 500s
+- [x] **API-05**: API rejects unsafe image URLs (private/loopback/link-local IPs, non-http(s) schemes, no auto-redirect-follow) to prevent SSRF
 - [x] **API-06**: Model is loaded exactly once at startup (via FastAPI `lifespan`) and held in memory — no per-request cold start
 - [ ] **API-07**: Auto-generated OpenAPI docs available at `/docs`, including example request/response payloads
 - [ ] **API-08**: API emits structured JSON logs with a request ID per request
@@ -112,10 +112,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | API-01 | Phase 1 | Complete |
-| API-02 | Phase 1 | Pending |
+| API-02 | Phase 1 | Complete |
 | API-03 | Phase 1 | Complete |
-| API-04 | Phase 1 | Pending |
-| API-05 | Phase 1 | Pending |
+| API-04 | Phase 1 | Complete |
+| API-05 | Phase 1 | Complete |
 | API-06 | Phase 1 | Complete |
 | API-07 | Phase 1 | Pending |
 | API-08 | Phase 1 | Pending |

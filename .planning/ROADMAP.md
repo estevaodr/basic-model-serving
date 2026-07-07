@@ -48,7 +48,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md — URL input path, structured 4xx validation, SSRF protection
+- [x] 01-03-PLAN.md — URL input path, structured 4xx validation, SSRF protection
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -138,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Inference API | 2/4 | In Progress|  |
+| 1. Core Inference API | 3/4 | In Progress|  |
 | 2. Containerization | 0/TBD | Not started | - |
 | 3. Local Dev Stack & Dashboards | 0/TBD | Not started | - |
 | 4. CI/CD Pipeline | 0/TBD | Not started | - |
