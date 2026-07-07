@@ -1,0 +1,169 @@
+<!-- gsd-project-start source:PROJECT.md -->
+## Project
+
+**Basic Model Serving**
+
+A portfolio-grade ML model serving system that deploys a pre-trained ResNet-50 image classification model as a REST API. The system is containerized with Docker, deployed to a local Kubernetes cluster (minikube) via werf, monitored with Prometheus and Grafana, and built/tested/pushed automatically via GitHub Actions CI. It demonstrates the full lifecycle of shipping an ML model as a production-style service: inference API, containerization, orchestration, observability, and CI/CD.
+
+**Core Value:** A single `POST /predict` request returns accurate top-5 ImageNet predictions in under 100ms, running as a properly containerized, orchestrated, observable service — end to end, not just a notebook demo.
+
+### Constraints
+
+- **Tech stack**: Python 3.9+, PyTorch, FastAPI, Uvicorn, Docker, Kubernetes (minikube), Prometheus, Grafana, GitHub Actions, werf — fixed per project spec
+- **Registry**: GitHub Container Registry (GHCR) — free, integrates natively with GitHub Actions
+- **Model**: torchvision pre-trained ResNet-50 (ImageNet weights) — fixed choice, no training involved
+- **Deployment environment**: Local Kubernetes only (minikube) — no cloud spend
+- **CI/CD reachability**: GitHub Actions (cloud-hosted runners) cannot reach the local minikube cluster, so CI stops at build+push; deploy is a separate manual/local step via werf
+<!-- gsd-project-end -->
+
+<!-- gsd-stack-start source:research/STACK.md -->
+## Technology Stack
+
+## Executive Take
+## Critical Compatibility Issue — Resolve Before Coding
+| Package | Current version | Minimum Python |
+|---|---|---|
+| torch | 2.12.1 | >=3.10 |
+| torchvision | 0.27.1 | >=3.10 (paired with torch 2.12) |
+| Pillow | 12.3.0 | >=3.10 |
+| requests | 2.34.2 | >=3.10 |
+| pydantic-settings | 2.14.2 | >=3.10 |
+| python-multipart | 0.0.32 | >=3.10 |
+| prometheus-fastapi-instrumentator | 8.0.2 | >=3.10 |
+## Recommended Stack
+### Core Technologies
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Python | 3.12 | Runtime | Current supported release compatible with every dependency below; see compatibility note above. Pin via `.python-version` / Docker base tag, not a range. |
+| PyTorch | 2.12.1 (CPU build) | Model inference engine | Latest stable (released 2026-06-17). Install the **CPU-only wheel** (`--index-url https://download.pytorch.org/whl/cpu`) — this project has no GPU in scope, and the default PyPI wheel silently drags in ~6GB of unused CUDA/cuDNN/Triton dependencies, blowing the "<2GB image" requirement. |
+| torchvision | 0.27.1 | Pre-trained ResNet-50 weights + image transforms | Must match torch's major.minor exactly (0.27.x pairs with torch 2.12.x only — mismatches raise import errors or silently give wrong results). Provides `torchvision.models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)` and the modern `transforms.v2` preprocessing API. |
+| FastAPI | 0.139.0 | REST API framework | Still the standard for Python ML-serving APIs: async-native, auto-generated OpenAPI docs at `/docs` (a project requirement), Pydantic-based validation. Install as `fastapi[standard]`, which pulls in the recommended Uvicorn extras and CLI automatically. |
+| Uvicorn | latest via `uvicorn[standard]` (bundled by `fastapi[standard]`) | ASGI server | FastAPI's own recommended server; the `[standard]` extra adds `uvloop` for a meaningful throughput/latency improvement — relevant given the project's <100ms p95 target. |
+| Pydantic | >=2.9 (installed transitively by FastAPI; use latest 2.x) | Request/response validation, settings | FastAPI 0.139 requires Pydantic v2 (>=2.9.0) — Pydantic v1 is not an option with a current FastAPI. v2's Rust-backed validation is also 5–50x faster than v1, which matters for a latency-sensitive endpoint. |
+### Supporting Libraries
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| Pillow | 12.3.0 | Decode uploaded images (JPEG/PNG/WebP) into arrays torchvision can transform | Always — needed to turn raw upload bytes / downloaded URL bytes into a `PIL.Image` before running `transforms.v2`. |
+| python-multipart | 0.0.32 | Enables FastAPI's `UploadFile` / multipart form parsing | Required as soon as `/predict` accepts a file upload (per project requirement); FastAPI raises a runtime error at startup if this isn't installed and multipart routes exist. Already listed as a FastAPI optional dependency — pin it explicitly anyway for reproducible builds. |
+| requests | 2.34.2 | Fetch an image from a user-supplied URL for the "image URL" input mode | Only needed for the URL-based `/predict` path. Set an explicit timeout and a max-content-length guard (e.g. stream + size check) to avoid the endpoint hanging or being used as a fetch-arbitrary-URL vector. |
+| prometheus-fastapi-instrumentator | 8.0.2 | Auto-instruments FastAPI with standard HTTP metrics + exposes `/metrics` | The de facto standard FastAPI+Prometheus integration (1k+ GitHub stars, actively maintained, latest release 2026-06-23). Use it for request_count/request_duration; add custom `prometheus_client` `Counter`/`Histogram` objects alongside it for the domain-specific `prediction_count` metric the project requires. |
+| prometheus-client | latest 0.2x (pulled in transitively by the instrumentator, or add directly) | Custom app metrics (`prediction_count`, per-class counters, etc.) | Use directly wherever you need a metric the instrumentator doesn't auto-generate — e.g. `prediction_count` labeled by predicted class or confidence bucket. |
+| pydantic-settings | 2.14.2 | Typed env-var configuration (`BaseSettings`) | Matches the project's "config via env vars" containerization requirement; avoids hand-rolled `os.environ.get()` scattered through the app. |
+| python-json-logger or stdlib `logging` + `json` formatter | n/a | Structured logs readable by `kubectl logs` / log aggregation | Recommended so logs are parseable; not a hard requirement for this scope, but cheap to add and pairs well with the observability goal. |
+### Testing & Dev Tools
+| Tool | Version | Purpose | Notes |
+|------|---------|---------|-------|
+| pytest | 9.1.1 | Test runner | Current stable (2026-06-19). Use `fastapi.testclient.TestClient` (built on Starlette's TestClient) for API tests — no live server needed. |
+| httpx | latest 0.2x (installed as FastAPI's own test-client dependency) | HTTP client backing `TestClient` / manual async client tests | FastAPI 0.139 itself still depends on `httpx` (not the newer `httpx2` package some Starlette-adjacent projects are migrating toward as of mid-2026). Stick with plain `httpx` for this project — it's what FastAPI's own dependency chain pins, it works without warnings-as-errors issues, and `httpx2` is a very recent (2026 H1), still-thin-adoption package not worth the churn for a portfolio project. Revisit only if FastAPI itself moves its dependency floor. |
+| ruff | 0.15.20 | Lint + format (replaces flake8/black/isort) | Current stable (2026 releases). One tool, one config block, fast enough to run in CI in well under a second — helps hit the "<10 min pipeline" requirement. |
+| mypy (optional) | latest 1.x | Static typing | Nice-to-have given Pydantic v2's strong typing story; not required to hit the project's stated scope — treat as a stretch goal, not a blocker. |
+## Installation
+# Core (CPU-only torch — critical for the <2GB image requirement)
+# Web framework + server
+# Supporting libraries
+# Dev / test dependencies
+## werf Deployment Specifics
+### Project layout for a single-service app
+### Registry auth — two different contexts, two different credentials
+- **In GitHub Actions** (build/push only, no `werf converge` per the project's Out-of-Scope decision): you don't actually need `werf` in CI at all for this project, since CI never runs `werf build`/`werf converge` — plain `docker/build-push-action` authenticated with the ambient `GITHUB_TOKEN` (see CI/CD section) is sufficient and simpler.
+- **Locally, running `werf converge` against minikube**: werf needs its own registry login, run once per machine/session:
+### If you later automate deploy from CI (documented as out-of-scope now)
+## Kubernetes / minikube Setup
+### Driver and sizing
+### Resource requests/limits for the inference pod (starting point, LOW-MEDIUM confidence — tune after load testing)
+### Exposing Prometheus/Grafana alongside the app: use kube-prometheus-stack, don't hand-roll manifests
+## CI/CD (GitHub Actions)
+- `permissions: packages: write` at the job/workflow level is required — its omission is the single most common GHCR-push failure reported across current guides; `GITHUB_TOKEN` exists automatically but has read-only package scope unless this is set.
+- `docker/metadata-action` for tagging (short SHA + `latest` on main) is the standard pattern rather than hand-rolling tag strings — it also keeps tag logic out of shell scripting.
+- `cache-from/cache-to: type=gha` uses GitHub's own Actions cache for Docker layer caching, which meaningfully helps hit the "<10 minute pipeline" requirement given how large the PyTorch layer is.
+- Actions versions above (`checkout@v7`, `setup-python@v6`, the `docker/*@v4`/`@v6`/`@v7` actions) are each the current major release as of research date (2026-07). `actions/checkout@v4`/`setup-python@v5` still work fine if preferred for stability — no functional requirement forces the newest majors, this is just "what's current."
+## Docker / Multi-Stage Build
+- `--index-url` (not `--extra-index-url`) for the wheel-building stage ensures pip resolves *everything* torch-related (torch, torchvision) from the CPU index consistently; mixing index behavior is the most common cause of accidentally pulling a CUDA build anyway.
+- `python:3.12-slim` (Debian-based) over `python:3.12-alpine`: PyTorch does not publish musl-libc wheels, so Alpine forces a from-source PyTorch build — extremely slow and fragile. This is a well-documented Alpine+PyTorch pitfall; slim (glibc-based) avoids it entirely.
+- Non-root user (`appuser`, uid 1000) satisfies the project's own "runs as non-root" requirement directly.
+- `/health` endpoint should be a plain liveness check with no model inference in the request path (just confirms the process + loaded model object are alive) — used by both Docker `HEALTHCHECK` and the Kubernetes liveness/readiness probes.
+## Alternatives Considered
+| Category | Recommended | Alternative | Why Not |
+|----------|-------------|-------------|---------|
+| Model serving format | Plain PyTorch `nn.Module.eval()` inference in FastAPI | TorchServe / NVIDIA Triton / ONNX Runtime | Those add real value at scale (multi-model, dynamic batching, GPU sharing) but are pure overhead for a single fixed CPU model behind one `/predict` route — they'd obscure the "hand-built FastAPI serving layer" skill this portfolio project is meant to demonstrate. |
+| Prometheus/Grafana deployment | kube-prometheus-stack Helm chart | Hand-rolled Prometheus/Grafana Deployment + ConfigMap manifests | Valid if the goal were to demonstrate raw manifest-writing skill, but it's much more YAML for the same outcome and loses the Operator's ServiceMonitor-based service discovery, which is itself a skill worth demonstrating (it's what real Prometheus deployments use). |
+| Deploy tool | werf (already fixed by project spec) | Plain `helm install`/`kubectl apply`, or ArgoCD/Flux GitOps | werf was an explicit user choice; note for context: werf adds build+push orchestration on top of Helm/Nelm templating that plain Helm doesn't have, which is a reasonable value-add to highlight, not just "Helm with extra steps." GitOps tools (ArgoCD/Flux) assume a cluster that's reachable from a Git-watching controller — overkill/inapplicable for a local-only minikube cluster with a manual deploy step. |
+| Local dev inner loop | docker-compose (already decided per project) | Skaffold / Tilt against minikube directly | Both are reasonable "fast inner loop on K8s" tools, but the project already chose docker-compose specifically to avoid the K8s reconcile-loop overhead while iterating — correct call for a solo portfolio project where the K8s deploy is a periodic checkpoint, not the primary dev loop. |
+| Test HTTP client | `httpx` (matches FastAPI's own pin) | `httpx2` | `httpx2` is a genuine, real package (`pydantic/httpx2` on GitHub) that Starlette's `TestClient` is beginning to prefer as of mid-2026, but it's extremely new, not yet FastAPI's own declared dependency, and adopting bleeding-edge package renames early adds churn risk for no functional benefit here. Revisit if/when FastAPI itself moves to depend on it. |
+## What NOT to Use
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| Default (non-CPU-indexed) `pip install torch` | Pulls the CUDA build and its bundled cuDNN/Triton/NCCL dependencies — routinely balloons image size by 5-6GB+ for a project with no GPU in scope, blowing the "<2GB image" requirement immediately. | `pip install torch --index-url https://download.pytorch.org/whl/cpu` |
+| `python:3.x-alpine` as the base image for anything importing torch | PyTorch does not ship musl/Alpine wheels; pip falls back to compiling PyTorch from source, which can take 30-60+ minutes and frequently fails on missing build toolchain pieces. | `python:3.12-slim` (Debian glibc-based) |
+| Python 3.9 (or 3.10) as the actual target despite the "3.9+" constraint | 3.9 is past EOL (Oct 2025) and can't even install current torch/Pillow/etc.; 3.10 works but is one cycle closer to its own Oct 2026 EOL. | Python 3.12 (see Critical Compatibility Issue above) |
+| Hand-writing raw Prometheus scrape configs + a bare Grafana Deployment from scratch | Much more YAML, no Operator-based auto-discovery, reinvents a solved problem for zero portfolio benefit. | kube-prometheus-stack Helm chart + a `ServiceMonitor` |
+| Running `werf converge` from a GitHub Actions runner in this project | The runner cannot reach a local minikube cluster — this is already correctly called out as Out of Scope in the project's own PROJECT.md; don't accidentally reintroduce it while wiring up CI. | Manual local `werf converge`, CI stops at build+push |
+| Mixing arbitrary torch/torchvision version pins (e.g. latest torch with an older torchvision, or vice versa) | The two packages are released in lockstep by major.minor (torch 2.12 ↔ torchvision 0.27); mismatches cause import-time errors or, worse, silently wrong numerical output from transforms. | Always pin both together from the compatibility table (torch 2.12.1 + torchvision 0.27.1) |
+| `httpx2` as a required dependency right now | Extremely recent (2026 H1) rename/successor package; FastAPI itself hasn't moved its own dependency floor to it yet. | Plain `httpx` (already a transitive FastAPI dependency) |
+## Stack Patterns by Variant
+- Use `locust` or a simple `hey`/`wrk` run against the docker-compose stack first.
+- Because: catching CPU-thread-oversubscription issues (see `torch.set_num_threads`) locally is far faster to iterate on than round-tripping through `werf converge` each time.
+- Add `cache-from`/`cache-to: type=gha` (already in the recommended workflow above) and consider splitting the wheel-building stage's `pip wheel` step from the final `pip install` step across cache-friendly layers.
+- Because: torch's CPU wheel is still ~200-300MB to download; without layer caching, every CI run re-downloads it, eating into the <10 minute pipeline budget.
+## Version Compatibility
+| Package A | Compatible With | Notes |
+|-----------|-----------------|-------|
+| torch==2.12.1 | torchvision==0.27.1 | Must match major.minor in lockstep; verify with `torch.__version__`/`torchvision.__version__` after install, not just visually check requirements.txt. |
+| fastapi==0.139.0 | pydantic>=2.9.0,<3 | FastAPI's own PyPI metadata enforces this floor; do not attempt Pydantic v1. |
+| fastapi[standard] | uvicorn[standard]>=0.12.0, python-multipart>=0.0.18, pydantic-settings>=2.0.0 | All pulled in automatically by the `[standard]` extra — the explicit pins in this doc are for reproducibility, not because FastAPI needs help finding them. |
+| prometheus-fastapi-instrumentator==8.0.2 | Python >=3.10 | Confirms the Python 3.12 recommendation above; this library alone rules out Python 3.9. |
+| werf v2.x | Existing Helm charts/templates | Nelm (v2's deployment engine) is backward-compatible with standard Helm chart syntax — no chart rewrite needed vs. what you'd write for werf v1.2 or plain Helm. |
+| kube-prometheus-stack ServiceMonitor | Prometheus Operator's `serviceMonitorSelector` | Only discovered if the ServiceMonitor carries the `release: <helm-release-name>` label matching the installed chart's release name — a labeling mismatch is a silent failure (no scrape, no error). |
+## Sources
+- PyPI package pages for torch, torchvision, fastapi, pydantic-settings, python-multipart, pillow, requests, prometheus-fastapi-instrumentator, pytest, ruff — version numbers and `Python:` classifier requirements (HIGH confidence, checked 2026-07-06/07)
+- `pytorch/vision` GitHub releases + torchvision PyPI compatibility table — torch/torchvision major.minor pairing (HIGH confidence)
+- `pytorch/pytorch` `RELEASE.md` compatibility matrix and `pyproject.toml` — confirms `requires-python = ">=3.10"` for torch 2.10-2.12 (HIGH confidence)
+- FastAPI GitHub repo + PyPI dependency metadata — Pydantic v2 floor, `fastapi[standard]` extras (HIGH confidence)
+- werf official docs (`werf.io/docs/v2/...`) + werf blog "werf 2.0 is out with Nelm" + `werf/werf` GitHub discussion #6100 — current major version, Nelm backward compatibility, `configVersion: 1` (HIGH confidence)
+- werf official CI/CD guide (`werf.io/guides/.../040_github_actions.html`) + `werf/actions` GitHub repo — GHCR auth via `werf ci-env github`, local `werf cr login` pattern (HIGH confidence for the documented CI pattern; MEDIUM-HIGH for the local-vs-CI auth distinction, which is synthesized from official docs rather than a single page stating this exact project's split)
+- Multiple community reference repos (`dudeperf3ct/9-fastapi-kubernetes-monitoring`, `rishirk408/k8s-observability-lab`, `jeremyjordan/ml-monitoring`) — converging on the same kube-prometheus-stack + ServiceMonitor pattern independently (HIGH confidence via cross-referencing)
+- minikube official docs (`minikube.sigs.k8s.io/docs/faq`, `/commands/start`) + community 2026 guides (thelinuxcode.com, markaicode.com) — driver choice and resource sizing (MEDIUM confidence — official docs give defaults/minimums, specific 4CPU/8GB recommendation is community consensus, not benchmarked against this project's actual workload)
+- python.org devguide (`devguide.python.org/versions`) + endoflife.ai — Python 3.9 EOL date (HIGH confidence)
+- Stack Overflow + `pytorch/pytorch` GitHub issue #146786 + community blog post — CPU-only wheel install pattern and image-size impact (HIGH confidence, corroborated across independent sources)
+- GitHub Actions marketplace / release pages for `actions/checkout`, `actions/setup-python`, `docker/setup-buildx-action`, `docker/login-action`, `docker/metadata-action`, `docker/build-push-action` — current major versions as of 2026-07 (HIGH confidence)
+<!-- gsd-stack-end -->
+
+<!-- gsd-conventions-start source:CONVENTIONS.md -->
+## Conventions
+
+Conventions not yet established. Will populate as patterns emerge during development.
+<!-- gsd-conventions-end -->
+
+<!-- gsd-architecture-start source:ARCHITECTURE.md -->
+## Architecture
+
+Architecture not yet mapped. Follow existing patterns found in the codebase.
+<!-- gsd-architecture-end -->
+
+<!-- gsd-skills-start source:skills/ -->
+## Project Skills
+
+No project skills found. Add skills to any of: `.cursor/skills/`, `.agents/skills/`, `.cursor/skills/`, `.github/skills/`, or `.codex/skills/` with a `SKILL.md` index file.
+<!-- gsd-skills-end -->
+
+<!-- gsd-workflow-start source:GSD defaults -->
+## GSD Workflow Enforcement
+
+Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
+
+Use these entry points:
+- `/gsd-quick` for small fixes, doc updates, and ad-hoc tasks
+- `/gsd-debug` for investigation and bug fixing
+- `/gsd-execute-phase` for planned phase work
+
+Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
+<!-- gsd-workflow-end -->
+
+
+
+<!-- gsd-profile-start -->
+## Developer Profile
+
+> Profile not yet configured. Run `/gsd-profile-user` to generate your developer profile.
+> This section is managed by `generate-claude-profile` -- do not edit manually.
+<!-- gsd-profile-end -->
