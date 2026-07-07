@@ -34,6 +34,23 @@ def _client_error(
     )
 
 
+def _read_upload_limited(read_fn, max_bytes: int) -> bytes:
+    chunks: list[bytes] = []
+    size = 0
+    while True:
+        chunk = read_fn(65536)
+        if not chunk:
+            break
+        size += len(chunk)
+        if size > max_bytes:
+            raise _client_error(
+                "payload_too_large",
+                f"Upload exceeds maximum allowed size of {max_bytes} bytes",
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
 def _run_inference(data: bytes, classifier) -> PredictResponse:
     try:
         return predict_from_bytes(data, classifier)
@@ -161,7 +178,10 @@ def predict(request: Request, classifier=Depends(get_classifier)):
                 ).model_dump(),
             )
         if file is not None:
-            data = anyio.from_thread.run(file.read)
+            data = _read_upload_limited(
+                lambda n: anyio.from_thread.run(file.read, n),
+                settings.max_upload_bytes,
+            )
             return _run_inference(data, classifier)
         if image_url:
             return _predict_from_url(str(image_url), classifier)
