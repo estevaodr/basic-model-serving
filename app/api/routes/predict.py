@@ -13,6 +13,8 @@ from app.services.url_fetch import UrlFetchError, fetch_url_bytes
 
 router = APIRouter(tags=["Predict"])
 
+MAX_JSON_BODY_BYTES = 16384
+
 
 def _request_id() -> str | None:
     rid = request_id_var.get("")
@@ -46,6 +48,31 @@ def _read_upload_limited(read_fn, max_bytes: int) -> bytes:
             raise _client_error(
                 "payload_too_large",
                 f"Upload exceeds maximum allowed size of {max_bytes} bytes",
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
+async def _read_json_body_limited(request: Request, max_bytes: int) -> bytes:
+    content_length = request.headers.get("content-length")
+    if content_length is not None:
+        try:
+            if int(content_length) > max_bytes:
+                raise _client_error(
+                    "payload_too_large",
+                    f"JSON body exceeds maximum allowed size of {max_bytes} bytes",
+                )
+        except ValueError:
+            pass
+
+    chunks: list[bytes] = []
+    size = 0
+    async for chunk in request.stream():
+        size += len(chunk)
+        if size > max_bytes:
+            raise _client_error(
+                "payload_too_large",
+                f"JSON body exceeds maximum allowed size of {max_bytes} bytes",
             )
         chunks.append(chunk)
     return b"".join(chunks)
@@ -144,7 +171,7 @@ def predict(request: Request, classifier=Depends(get_classifier)):
     content_type = request.headers.get("content-type", "")
 
     if content_type.startswith("application/json"):
-        body = anyio.from_thread.run(request.body)
+        body = anyio.from_thread.run(_read_json_body_limited, request, MAX_JSON_BODY_BYTES)
         try:
             raw = json.loads(body)
         except json.JSONDecodeError as exc:
