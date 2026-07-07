@@ -174,3 +174,26 @@ def test_predict_warm_path_latency_under_100ms(client, sample_jpeg_bytes):
             "formal p95 SLO validated in Phase 6 PERF-01"
         )
     assert elapsed < 0.1
+
+
+def test_openapi_documents_predict(client):
+    openapi_response = client.get("/openapi.json")
+    assert openapi_response.status_code == 200
+    schema = openapi_response.json()
+
+    assert "/predict" in schema["paths"]
+    predict_post = schema["paths"]["/predict"]["post"]
+    assert "requestBody" in predict_post
+
+    components = schema.get("components", {}).get("schemas", {})
+    assert "PredictResponse" in components
+    assert "predictions" in components["PredictResponse"]["properties"]
+
+    predict_response = components["PredictResponse"]
+    examples = predict_response.get("examples") or predict_response.get(
+        "json_schema_extra", {}
+    ).get("examples", [])
+    if examples:
+        assert len(examples[0]["predictions"]) == 5
+
+    assert client.get("/docs").status_code == 200
