@@ -1,16 +1,12 @@
-import re
-
 from app.metrics.prometheus import PREDICTION_COUNT
 
-
 def _metric_value(metrics_text: str, name: str) -> float:
-    pattern = rf"^{name}\s+(\d+(?:\.\d+)?(?:e[+-]?\d+)?)"
     for line in metrics_text.splitlines():
         if line.startswith("#"):
             continue
-        match = re.match(pattern, line)
-        if match:
-            return float(match.group(1))
+        metric_name = line.split("{", 1)[0].split()[0]
+        if metric_name == name or metric_name == f"{name}_total":
+            return float(line.split()[-1])
     return 0.0
 
 
