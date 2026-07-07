@@ -34,7 +34,16 @@ async def lifespan(app: FastAPI):
     del app.state.classifier
 
 
-app = FastAPI(title="Basic Model Serving", lifespan=lifespan)
+app = FastAPI(
+    title="Basic Model Serving",
+    description=(
+        "Portfolio-grade ResNet-50 image classification API. "
+        "POST /predict accepts either a multipart file upload or a JSON "
+        "`image_url` body. Observability endpoints: GET /health/live, "
+        "GET /health/ready, and GET /metrics (Prometheus)."
+    ),
+    lifespan=lifespan,
+)
 app.add_middleware(PrometheusMiddleware)
 app.add_middleware(RequestIdMiddleware)
 

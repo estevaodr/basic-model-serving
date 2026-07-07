@@ -53,7 +53,76 @@ def _predict_from_url(image_url: str, classifier) -> PredictResponse:
     return _run_inference(data, classifier)
 
 
-@router.post("/predict", response_model=PredictResponse)
+@router.post(
+    "/predict",
+    response_model=PredictResponse,
+    summary="Classify an image (upload or URL)",
+    description=(
+        "Submit an image for ResNet-50 top-5 ImageNet classification. "
+        "Use `multipart/form-data` with a `file` field for direct upload, "
+        "or `application/json` with `{\"image_url\": \"https://...\"}` "
+        "to fetch an image from a public URL."
+    ),
+    responses={
+        400: {
+            "description": "Invalid image or client error",
+            "model": ErrorDetail,
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "invalid_image",
+                        "message": "Could not decode image",
+                        "request_id": "550e8400-e29b-41d4-a716-446655440000",
+                    }
+                }
+            },
+        },
+        422: {
+            "description": "Validation or unsupported content type",
+            "model": ErrorDetail,
+        },
+    },
+    openapi_extra={
+        "requestBody": {
+            "required": True,
+            "content": {
+                "application/json": {
+                    "schema": PredictUrlRequest.model_json_schema(),
+                    "examples": {
+                        "image_url": {
+                            "summary": "Classify from URL",
+                            "value": {
+                                "image_url": "https://example.com/golden-retriever.jpg"
+                            },
+                        }
+                    },
+                },
+                "multipart/form-data": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "file": {
+                                "type": "string",
+                                "format": "binary",
+                                "description": "JPEG/PNG/WebP image file",
+                            },
+                            "image_url": {
+                                "type": "string",
+                                "description": "Optional URL when using multipart fallback",
+                            },
+                        },
+                    },
+                    "examples": {
+                        "file_upload": {
+                            "summary": "Upload image file",
+                            "value": {"file": "(binary image data)"},
+                        }
+                    },
+                },
+            },
+        }
+    },
+)
 def predict(request: Request, classifier=Depends(get_classifier)):
     content_type = request.headers.get("content-type", "")
 
