@@ -1,6 +1,7 @@
 import io
 
-from PIL import DecompressionBombError, Image, UnidentifiedImageError
+from PIL import Image, UnidentifiedImageError
+from PIL.Image import DecompressionBombError
 
 from app.core.config import settings
 from app.metrics.prometheus import PREDICTION_COUNT
