@@ -44,7 +44,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Walking skeleton: lifespan model load, health probes, sync upload /predict, warm-path latency smoke
+- [x] 01-02-PLAN.md — Walking skeleton: lifespan model load, health probes, sync upload /predict, warm-path latency smoke
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -138,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Inference API | 1/4 | In Progress|  |
+| 1. Core Inference API | 2/4 | In Progress|  |
 | 2. Containerization | 0/TBD | Not started | - |
 | 3. Local Dev Stack & Dashboards | 0/TBD | Not started | - |
 | 4. CI/CD Pipeline | 0/TBD | Not started | - |
