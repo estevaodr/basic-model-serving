@@ -15,8 +15,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **API-04**: API returns structured, typed 4xx JSON errors for invalid input (bad file type, corrupt image, oversized upload, non-image/unreachable URL) instead of raw 500s
 - [x] **API-05**: API rejects unsafe image URLs (private/loopback/link-local IPs, non-http(s) schemes, no auto-redirect-follow) to prevent SSRF
 - [x] **API-06**: Model is loaded exactly once at startup (via FastAPI `lifespan`) and held in memory — no per-request cold start
-- [ ] **API-07**: Auto-generated OpenAPI docs available at `/docs`, including example request/response payloads
-- [ ] **API-08**: API emits structured JSON logs with a request ID per request
+- [x] **API-07**: Auto-generated OpenAPI docs available at `/docs`, including example request/response payloads
+- [x] **API-08**: API emits structured JSON logs with a request ID per request
 
 ### Health
 
@@ -41,7 +41,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Monitoring
 
-- [ ] **MON-01**: Prometheus scrapes application metrics: `request_count`, `request_duration` (histogram), `prediction_count`
+- [x] **MON-01**: Prometheus scrapes application metrics: `request_count`, `request_duration` (histogram), `prediction_count`
 - [ ] **MON-02**: Grafana dashboard displays 5-7 key metrics with real data
 - [ ] **MON-03**: Alert is configured for service downtime
 - [ ] **MON-04**: Metrics are retained for 7+ days
@@ -117,8 +117,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-04 | Phase 1 | Complete |
 | API-05 | Phase 1 | Complete |
 | API-06 | Phase 1 | Complete |
-| API-07 | Phase 1 | Pending |
-| API-08 | Phase 1 | Pending |
+| API-07 | Phase 1 | Complete |
+| API-08 | Phase 1 | Complete |
 | HLTH-01 | Phase 1 | Complete |
 | HLTH-02 | Phase 1 | Complete |
 | CONT-01 | Phase 2 | Pending |
@@ -131,7 +131,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | K8S-04 | Phase 5 | Pending |
 | K8S-05 | Phase 5 | Pending |
 | K8S-06 | Phase 5 | Pending |
-| MON-01 | Phase 1 | Pending |
+| MON-01 | Phase 1 | Complete |
 | MON-02 | Phase 3 | Pending |
 | MON-03 | Phase 3 | Pending |
 | MON-04 | Phase 3 | Pending |

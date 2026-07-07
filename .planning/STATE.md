@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-07-07T20:22:03.375Z"
+status: verifying
+stopped_at: Completed 01-04-PLAN.md
+last_updated: "2026-07-07T20:26:25.325Z"
 last_activity: 2026-07-07 -- Phase 01 execution started
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 0
+  completed_plans: 4
+  percent: 17
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 
 Phase: 01 (core-inference-api) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-07 -- Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-core-inference-api P01 | 3 | 1 tasks | 14 files |
 | Phase 01-core-inference-api P02 | 3 | 1 tasks | 9 files |
 | Phase 01-core-inference-api P03 | 4 | 2 tasks | 6 files |
+| Phase 01-core-inference-api P04 | 3 | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,8 @@ Recent decisions affecting current work:
 - [Phase 01-core-inference-api]: Single Request-based /predict handler after dual-route OpenAPI collision
 - [Phase 01-core-inference-api]: PredictUrlRequest.image_url uses str so SSRF validate_url runs before pydantic scheme checks
 - [Phase 01-core-inference-api]: HTTPException handler returns flat ErrorDetail JSON for API-04
+- [Phase 01-core-inference-api]: PrometheusMiddleware inner, RequestIdMiddleware outer for accurate per-request log status — RequestId wraps Prometheus so logs capture final status after metrics middleware completes
+- [Phase 01-core-inference-api]: MON-01 metric labels use route template path not raw URLs — Prevents high-cardinality labels from image_url query params per threat model T-01-11
 
 ### Pending Todos
 
@@ -90,6 +93,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-07T20:22:03.075Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-07-07T20:26:25.046Z
+Stopped at: Completed 01-04-PLAN.md
 Resume file: None

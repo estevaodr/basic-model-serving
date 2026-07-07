@@ -13,7 +13,7 @@ This project delivers one vertical capability — serving ResNet-50 image classi
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Core Inference API** - Working `/predict` + health endpoints + metrics instrumentation, model loaded once in memory
+- [x] **Phase 1: Core Inference API** - Working `/predict` + health endpoints + metrics instrumentation, model loaded once in memory (completed 2026-07-07)
 - [ ] **Phase 2: Containerization** - Multi-stage, non-root, <2GB Docker image configured via env vars
 - [ ] **Phase 3: Local Dev Stack & Dashboards** - `docker-compose` stack with live Grafana dashboards, provisioned as code
 - [ ] **Phase 4: CI/CD Pipeline** - GitHub Actions lint/test/build/push to GHCR on every push to `main`
@@ -52,7 +52,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-04-PLAN.md — Structured JSON logging, MON-01 Prometheus metrics, OpenAPI docs
+- [x] 01-04-PLAN.md — Structured JSON logging, MON-01 Prometheus metrics, OpenAPI docs
 
 ### Phase 2: Containerization
 
@@ -138,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Inference API | 3/4 | In Progress|  |
+| 1. Core Inference API | 4/4 | Complete   | 2026-07-07 |
 | 2. Containerization | 0/TBD | Not started | - |
 | 3. Local Dev Stack & Dashboards | 0/TBD | Not started | - |
 | 4. CI/CD Pipeline | 0/TBD | Not started | - |
