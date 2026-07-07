@@ -88,7 +88,7 @@ def fetch_url_bytes(url: str, timeout: float, max_bytes: int) -> bytes:
         ) from exc
     except UrlFetchError:
         raise
-    except ValueError as exc:
+    except ipaddress.AddressValueError as exc:
         raise UrlFetchError("invalid_url", str(exc)) from exc
 
     return b"".join(chunks)
