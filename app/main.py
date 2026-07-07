@@ -17,6 +17,7 @@ from fastapi.responses import JSONResponse
 from app.api.routes import health, predict
 from app.core.config import settings
 from app.core.logging import RequestIdMiddleware, configure_logging
+from app.metrics.prometheus import PrometheusMiddleware, metrics_router
 from app.models.resnet import ResNetClassifier
 
 configure_logging()
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Basic Model Serving", lifespan=lifespan)
+app.add_middleware(PrometheusMiddleware)
 app.add_middleware(RequestIdMiddleware)
 
 
@@ -49,3 +51,4 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 app.include_router(predict.router)
 app.include_router(health.router)
+app.include_router(metrics_router)

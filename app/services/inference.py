@@ -3,6 +3,7 @@ import io
 from PIL import Image, UnidentifiedImageError
 
 from app.core.config import settings
+from app.metrics.prometheus import PREDICTION_COUNT
 from app.schemas.prediction import PredictionItem, PredictResponse
 
 
@@ -27,6 +28,7 @@ def predict_from_bytes(data: bytes, classifier) -> PredictResponse:
         raise InferenceError("invalid_image", "Could not decode image") from exc
 
     predictions = classifier.predict(image)
+    PREDICTION_COUNT.inc()
     return PredictResponse(
         predictions=[
             PredictionItem(label=label, confidence=confidence)
