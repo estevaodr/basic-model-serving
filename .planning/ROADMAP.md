@@ -32,7 +32,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Invalid input (bad file type, corrupt/oversized image, unsafe or unreachable URL) returns a structured 4xx JSON error, never a raw 500
   4. `/health/live` and `/health/ready` accurately reflect process and model-load state, and `/docs` renders auto-generated OpenAPI docs with example payloads
   5. Every request is logged as structured JSON with a request ID, and `/metrics` exposes `request_count`, `request_duration`, and `prediction_count` ready to be scraped
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Walking skeleton: scaffold, lifespan model load, health probes, sync upload /predict
+- [ ] 01-02-PLAN.md — URL input path, structured 4xx validation, SSRF protection
+- [ ] 01-03-PLAN.md — Structured JSON logging, MON-01 Prometheus metrics, OpenAPI docs
 
 ### Phase 2: Containerization
 **Goal**: The API runs as a portable, secure container image ready for both local dev and Kubernetes.
@@ -103,7 +108,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Inference API | 0/TBD | Not started | - |
+| 1. Core Inference API | 0/3 | Not started | - |
 | 2. Containerization | 0/TBD | Not started | - |
 | 3. Local Dev Stack & Dashboards | 0/TBD | Not started | - |
 | 4. CI/CD Pipeline | 0/TBD | Not started | - |
