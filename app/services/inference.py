@@ -1,6 +1,6 @@
 import io
 
-from PIL import Image, UnidentifiedImageError
+from PIL import DecompressionBombError, Image, UnidentifiedImageError
 
 from app.core.config import settings
 from app.metrics.prometheus import PREDICTION_COUNT
@@ -23,8 +23,9 @@ def predict_from_bytes(data: bytes, classifier) -> PredictResponse:
 
     try:
         image = Image.open(io.BytesIO(data))
-        image = image.convert("RGB")
-    except UnidentifiedImageError as exc:
+        image.verify()
+        image = Image.open(io.BytesIO(data)).convert("RGB")
+    except (UnidentifiedImageError, DecompressionBombError, OSError) as exc:
         raise InferenceError("invalid_image", "Could not decode image") from exc
 
     predictions = classifier.predict(image)
