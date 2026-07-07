@@ -111,50 +111,50 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| API-01 | TBD | Pending |
-| API-02 | TBD | Pending |
-| API-03 | TBD | Pending |
-| API-04 | TBD | Pending |
-| API-05 | TBD | Pending |
-| API-06 | TBD | Pending |
-| API-07 | TBD | Pending |
-| API-08 | TBD | Pending |
-| HLTH-01 | TBD | Pending |
-| HLTH-02 | TBD | Pending |
-| CONT-01 | TBD | Pending |
-| CONT-02 | TBD | Pending |
-| CONT-03 | TBD | Pending |
-| CONT-04 | TBD | Pending |
-| K8S-01 | TBD | Pending |
-| K8S-02 | TBD | Pending |
-| K8S-03 | TBD | Pending |
-| K8S-04 | TBD | Pending |
-| K8S-05 | TBD | Pending |
-| K8S-06 | TBD | Pending |
-| MON-01 | TBD | Pending |
-| MON-02 | TBD | Pending |
-| MON-03 | TBD | Pending |
-| MON-04 | TBD | Pending |
-| MON-05 | TBD | Pending |
-| CI-01 | TBD | Pending |
-| CI-02 | TBD | Pending |
-| CI-03 | TBD | Pending |
-| CI-04 | TBD | Pending |
-| PERF-01 | TBD | Pending |
-| PERF-02 | TBD | Pending |
-| PERF-03 | TBD | Pending |
-| PERF-04 | TBD | Pending |
-| DOC-01 | TBD | Pending |
-| DOC-02 | TBD | Pending |
-| DOC-03 | TBD | Pending |
-| DOC-04 | TBD | Pending |
-| DOC-05 | TBD | Pending |
-| DOC-06 | TBD | Pending |
+| API-01 | Phase 1 | Pending |
+| API-02 | Phase 1 | Pending |
+| API-03 | Phase 1 | Pending |
+| API-04 | Phase 1 | Pending |
+| API-05 | Phase 1 | Pending |
+| API-06 | Phase 1 | Pending |
+| API-07 | Phase 1 | Pending |
+| API-08 | Phase 1 | Pending |
+| HLTH-01 | Phase 1 | Pending |
+| HLTH-02 | Phase 1 | Pending |
+| CONT-01 | Phase 2 | Pending |
+| CONT-02 | Phase 2 | Pending |
+| CONT-03 | Phase 2 | Pending |
+| CONT-04 | Phase 3 | Pending |
+| K8S-01 | Phase 5 | Pending |
+| K8S-02 | Phase 5 | Pending |
+| K8S-03 | Phase 5 | Pending |
+| K8S-04 | Phase 5 | Pending |
+| K8S-05 | Phase 5 | Pending |
+| K8S-06 | Phase 5 | Pending |
+| MON-01 | Phase 1 | Pending |
+| MON-02 | Phase 3 | Pending |
+| MON-03 | Phase 3 | Pending |
+| MON-04 | Phase 3 | Pending |
+| MON-05 | Phase 3 | Pending |
+| CI-01 | Phase 4 | Pending |
+| CI-02 | Phase 4 | Pending |
+| CI-03 | Phase 4 | Pending |
+| CI-04 | Phase 4 | Pending |
+| PERF-01 | Phase 6 | Pending |
+| PERF-02 | Phase 6 | Pending |
+| PERF-03 | Phase 6 | Pending |
+| PERF-04 | Phase 5 | Pending |
+| DOC-01 | Phase 6 | Pending |
+| DOC-02 | Phase 6 | Pending |
+| DOC-03 | Phase 6 | Pending |
+| DOC-04 | Phase 6 | Pending |
+| DOC-05 | Phase 6 | Pending |
+| DOC-06 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 38 total
-- Mapped to phases: 0 (populated by roadmapper)
-- Unmapped: 38 ⚠️ (expected — roadmap not yet created)
+- v1 requirements: 39 total (corrected from 38 — actual count of listed REQ-IDs)
+- Mapped to phases: 39
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-06*
