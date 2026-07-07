@@ -25,7 +25,7 @@ def _is_blocked_ip(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
     )
 
 
-def validate_url(url: str) -> None:
+def validate_url(url: str) -> tuple[str, str]:
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         raise UrlFetchError("unsafe_url", "Only http and https URLs are allowed")
@@ -34,7 +34,9 @@ def validate_url(url: str) -> None:
 
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
     try:
-        addrinfos = socket.getaddrinfo(parsed.hostname, port)
+        addrinfos = socket.getaddrinfo(
+            parsed.hostname, port, type=socket.SOCK_STREAM
+        )
     except socket.gaierror as exc:
         raise UrlFetchError("url_fetch_failed", "Could not resolve hostname") from exc
 
@@ -43,12 +45,25 @@ def validate_url(url: str) -> None:
         if _is_blocked_ip(ip):
             raise UrlFetchError("unsafe_url", "URL resolves to a blocked address")
 
+    host, resolved_port = addrinfos[0][4][0], addrinfos[0][4][1]
+    path = parsed.path or "/"
+    if parsed.query:
+        path = f"{path}?{parsed.query}"
+    pinned_url = f"{parsed.scheme}://{host}:{resolved_port}{path}"
+    return pinned_url, parsed.hostname
+
 
 def fetch_url_bytes(url: str, timeout: float, max_bytes: int) -> bytes:
-    validate_url(url)
+    pinned_url, hostname = validate_url(url)
+    extensions = {"sni_hostname": hostname} if pinned_url.startswith("https://") else {}
     try:
         with httpx.Client(timeout=timeout, follow_redirects=False) as client:
-            with client.stream("GET", url) as response:
+            with client.stream(
+                "GET",
+                pinned_url,
+                headers={"Host": hostname},
+                extensions=extensions,
+            ) as response:
                 response.raise_for_status()
                 chunks: list[bytes] = []
                 size = 0
