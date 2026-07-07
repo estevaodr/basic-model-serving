@@ -1,66 +1,59 @@
 ---
 phase: 01-core-inference-api
-fixed_at: 2026-07-07T20:37:00Z
+fixed_at: 2026-07-07T20:45:00Z
 review_path: .planning/phases/01-core-inference-api/01-REVIEW.md
-iteration: 1
-findings_in_scope: 6
-fixed: 6
+iteration: 2
+findings_in_scope: 2
+fixed: 1
+already_fixed: 1
 skipped: 0
 status: all_fixed
 ---
 
 # Phase 01: Code Review Fix Report
 
-**Fixed at:** 2026-07-07T20:37:00Z
+**Fixed at:** 2026-07-07T20:45:00Z
 **Source review:** `.planning/phases/01-core-inference-api/01-REVIEW.md`
-**Iteration:** 1
+**Iteration:** 2
 
 **Summary:**
-- Findings in scope: 6
-- Fixed: 6
+- Findings in scope: 2 (Info only)
+- Fixed: 1
+- Already fixed: 1
 - Skipped: 0
-- Tests: 23 passed, 1 skipped (warm-path latency)
 
 ## Fixed Issues
 
-### CR-01: Multipart upload buffered before size limit
+### IN-01: Misleading torch install comment in requirements.txt
 
-**Files modified:** `app/api/routes/predict.py`
-**Commit:** 157b92a
-**Applied fix:** Added `_read_upload_limited()` to stream-read multipart uploads in 64 KiB chunks with early cutoff at `max_upload_bytes`, replacing unbounded `file.read()`.
+**Files modified:** `requirements.txt`
+**Commit:** 82d3f82
+**Applied fix:** Updated header comment to document the two-step install procedure: install torch/torchvision from the PyTorch CPU index first, then install remaining packages from PyPI via `pip install -r requirements.txt`.
 
-### WR-01: DNS rebinding TOCTOU in URL fetch
+## Already Fixed Issues
 
-**Files modified:** `app/services/url_fetch.py`
-**Commit:** 9bf2b5f
-**Applied fix:** `validate_url()` now returns a pinned URL using the resolved IP; `fetch_url_bytes()` connects to that address with the original hostname in the `Host` header and `sni_hostname` for HTTPS.
+### IN-02: Health probe 503 body differs from API error contract
 
-### WR-02: 503 `not_ready` responses use non-ErrorDetail shape
+**Files modified:** `app/api/routes/health.py`
+**Commit:** 5d38cf9 (iteration 1, WR-02)
+**Status:** already_fixed
+**Verified:** `/health/ready` returns `ErrorDetail(error="not_ready", message="Model is not loaded yet", request_id=...)` on 503, consistent with the structured error contract.
 
-**Files modified:** `app/api/dependencies.py`, `app/api/routes/health.py`
-**Commit:** 5d38cf9
-**Applied fix:** Replaced `{"status": "not_ready"}` with `ErrorDetail(error="not_ready", message="Model is not loaded yet", request_id=...)` in both `get_classifier()` and `/health/ready`.
+## Prior Iteration (1) — Critical & Warning Fixes
 
-### WR-03: Image decode errors beyond `UnidentifiedImageError` return 500
+All six critical/warning findings were fixed in iteration 1:
 
-**Files modified:** `app/services/inference.py`
-**Commit:** 00641b4 (import path corrected in 84cc74c)
-**Applied fix:** Added Pillow `verify()` + re-open pattern; catch `UnidentifiedImageError`, `DecompressionBombError`, and `OSError` as `invalid_image` client errors. Import uses `from PIL.Image import DecompressionBombError` for Pillow 12.x compatibility.
-
-### WR-04: JSON request body read without size cap
-
-**Files modified:** `app/api/routes/predict.py`
-**Commit:** d3005b8
-**Applied fix:** Added `MAX_JSON_BODY_BYTES` (16 KiB), `Content-Length` pre-check, and `_read_json_body_limited()` streaming reader before JSON parse.
-
-### WR-05: Broad `ValueError` handler masks unexpected failures
-
-**Files modified:** `app/services/url_fetch.py`
-**Commit:** 84cc74c
-**Applied fix:** Replaced catch-all `except ValueError` with `except ipaddress.AddressValueError` so unexpected internal errors propagate instead of being mislabeled as `invalid_url`.
+| Finding | Commit | Summary |
+|---------|--------|---------|
+| CR-01 | 157b92a | Stream-read multipart uploads with early size cutoff |
+| WR-01 | 9bf2b5f | Pin DNS resolution to prevent rebinding TOCTOU |
+| WR-02 | 5d38cf9 | Use `ErrorDetail` shape for 503 `not_ready` responses |
+| WR-03 | 00641b4 / 84cc74c | Catch Pillow decode errors as `invalid_image` client errors |
+| WR-04 | d3005b8 | Cap JSON request body size with streaming reader |
+| WR-05 | 84cc74c | Narrow `ValueError` catch to `AddressValueError` only |
 
 ---
 
-_Fixed: 2026-07-07T20:37:00Z_
+_Fixed: 2026-07-07T20:45:00Z_
 _Fixer: Claude (gsd-code-fixer)_
-_Iteration: 1_
+_Iteration: 2_
