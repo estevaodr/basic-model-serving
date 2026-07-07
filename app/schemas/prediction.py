@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, ValidationError
 
 
 class PredictionItem(BaseModel):
@@ -23,7 +23,12 @@ class PredictResponse(BaseModel):
 
 
 class PredictUrlRequest(BaseModel):
-    image_url: HttpUrl
+    image_url: str = Field(examples=["https://example.com/image.jpg"])
+    model_config = {
+        "json_schema_extra": {
+            "examples": [{"image_url": "https://example.com/image.jpg"}]
+        }
+    }
 
 
 class ErrorDetail(BaseModel):
