@@ -6,11 +6,17 @@ from pydantic import ValidationError
 
 from app.api.dependencies import get_classifier
 from app.core.config import settings
+from app.core.logging import request_id_var
 from app.schemas.prediction import ErrorDetail, PredictResponse, PredictUrlRequest
 from app.services.inference import InferenceError, predict_from_bytes
 from app.services.url_fetch import UrlFetchError, fetch_url_bytes
 
 router = APIRouter(tags=["Predict"])
+
+
+def _request_id() -> str | None:
+    rid = request_id_var.get("")
+    return rid or None
 
 
 def _client_error(
@@ -20,7 +26,11 @@ def _client_error(
 ) -> HTTPException:
     return HTTPException(
         status_code=status_code,
-        detail=ErrorDetail(error=error, message=message).model_dump(),
+        detail=ErrorDetail(
+            error=error,
+            message=message,
+            request_id=_request_id(),
+        ).model_dump(),
     )
 
 
@@ -62,6 +72,7 @@ def predict(request: Request, classifier=Depends(get_classifier)):
                 detail=ErrorDetail(
                     error="validation_error",
                     message=first["msg"],
+                    request_id=_request_id(),
                 ).model_dump(),
             ) from exc
         return _predict_from_url(payload.image_url, classifier)
@@ -77,6 +88,7 @@ def predict(request: Request, classifier=Depends(get_classifier)):
                 detail=ErrorDetail(
                     error="invalid_request",
                     message="Provide either file or image_url, not both",
+                    request_id=_request_id(),
                 ).model_dump(),
             )
         if file is not None:
@@ -90,6 +102,7 @@ def predict(request: Request, classifier=Depends(get_classifier)):
             detail=ErrorDetail(
                 error="invalid_request",
                 message="Either file or image_url is required",
+                request_id=_request_id(),
             ).model_dump(),
         )
 
@@ -98,5 +111,6 @@ def predict(request: Request, classifier=Depends(get_classifier)):
         detail=ErrorDetail(
             error="unsupported_media_type",
             message="Content-Type must be application/json or multipart/form-data",
+            request_id=_request_id(),
         ).model_dump(),
     )

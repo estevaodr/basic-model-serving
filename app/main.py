@@ -16,7 +16,10 @@ from fastapi.responses import JSONResponse
 
 from app.api.routes import health, predict
 from app.core.config import settings
+from app.core.logging import RequestIdMiddleware, configure_logging
 from app.models.resnet import ResNetClassifier
+
+configure_logging()
 
 
 @asynccontextmanager
@@ -31,6 +34,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Basic Model Serving", lifespan=lifespan)
+app.add_middleware(RequestIdMiddleware)
 
 
 @app.exception_handler(HTTPException)
