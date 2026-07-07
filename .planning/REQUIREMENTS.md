@@ -9,7 +9,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### API
 
-- [ ] **API-01**: User can `POST /predict` with an image file upload and receive top-5 predictions with confidence scores
+- [x] **API-01**: User can `POST /predict` with an image file upload and receive top-5 predictions with confidence scores
 - [ ] **API-02**: User can `POST /predict` with an image URL and receive top-5 predictions with confidence scores
 - [ ] **API-03**: API responds in <100ms for images <1MB
 - [ ] **API-04**: API returns structured, typed 4xx JSON errors for invalid input (bad file type, corrupt image, oversized upload, non-image/unreachable URL) instead of raw 500s
@@ -20,8 +20,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Health
 
-- [ ] **HLTH-01**: `GET /health/live` reports process liveness
-- [ ] **HLTH-02**: `GET /health/ready` reports readiness, returning 503 until the model is fully loaded into memory
+- [x] **HLTH-01**: `GET /health/live` reports process liveness
+- [x] **HLTH-02**: `GET /health/ready` reports readiness, returning 503 until the model is fully loaded into memory
 
 ### Containerization
 
@@ -111,7 +111,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| API-01 | Phase 1 | Pending |
+| API-01 | Phase 1 | Complete |
 | API-02 | Phase 1 | Pending |
 | API-03 | Phase 1 | Pending |
 | API-04 | Phase 1 | Pending |
@@ -119,8 +119,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-06 | Phase 1 | Pending |
 | API-07 | Phase 1 | Pending |
 | API-08 | Phase 1 | Pending |
-| HLTH-01 | Phase 1 | Pending |
-| HLTH-02 | Phase 1 | Pending |
+| HLTH-01 | Phase 1 | Complete |
+| HLTH-02 | Phase 1 | Complete |
 | CONT-01 | Phase 2 | Pending |
 | CONT-02 | Phase 2 | Pending |
 | CONT-03 | Phase 2 | Pending |
@@ -152,6 +152,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DOC-06 | Phase 6 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 39 total (corrected from 38 — actual count of listed REQ-IDs)
 - Mapped to phases: 39
 - Unmapped: 0 ✓
