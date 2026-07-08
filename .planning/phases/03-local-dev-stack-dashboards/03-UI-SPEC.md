@@ -1,10 +1,11 @@
 ---
 phase: 3
 slug: local-dev-stack-dashboards
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-07-08
+reviewed_at: 2026-07-08T20:13:00-03:00
 ---
 
 # Phase 3 — UI Design Contract
