@@ -68,7 +68,7 @@ def _wait_ready(timeout: float = 120) -> None:
             with urllib.request.urlopen(url, timeout=3) as response:
                 if response.status == 200:
                     return
-        except (urllib.error.URLError, TimeoutError):
+        except (urllib.error.URLError, TimeoutError, ConnectionResetError, OSError):
             pass
         time.sleep(1)
     raise TimeoutError(f"/health/ready did not return 200 within {timeout}s")
