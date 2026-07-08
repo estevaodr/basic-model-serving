@@ -66,7 +66,16 @@ Plans:
   2. The container runs as a non-root user with no permission errors on startup or during inference
   3. All application configuration is supplied via environment variables, with no code changes needed to reconfigure
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Multi-stage Dockerfile, .dockerignore, smoke scaffold, uv script entry points
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 02-02-PLAN.md — .env.example, README Docker section, complete uv run docker-smoke E2E
 
 ### Phase 3: Local Dev Stack & Dashboards
 
@@ -139,7 +148,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Inference API | 4/4 | Complete    | 2026-07-07 |
-| 2. Containerization | 0/TBD | Not started | - |
+| 2. Containerization | 0/2 | Not started | - |
 | 3. Local Dev Stack & Dashboards | 0/TBD | Not started | - |
 | 4. CI/CD Pipeline | 0/TBD | Not started | - |
 | 5. Kubernetes Deployment (via werf) | 0/TBD | Not started | - |
