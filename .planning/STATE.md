@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready for 03-03 alert provisioning
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-07-08T20:38:00Z"
-last_activity: 2026-07-08 -- Completed 03-02 dashboard provisioning plan
+status: Checkpoint — 03-03 Task 3 human alert demo verification
+stopped_at: Checkpoint 03-03 Task 3 — alert demo human-verify
+last_updated: "2026-07-08T20:52:00Z"
+last_activity: 2026-07-08 -- Completed 03-03 Tasks 1-2; awaiting human alert demo checkpoint
 progress:
   total_phases: 6
   completed_phases: 2
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 
 ## Current Position
 
-Phase: 03 (local-dev-stack-dashboards) — EXECUTING
-Plan: 3 of 3
-Status: Ready for 03-03 alert provisioning
-Last activity: 2026-07-08 -- Completed 03-02 dashboard provisioning plan
+Phase: 03 (local-dev-stack-dashboards) — CHECKPOINT
+Plan: 3 of 3 (Task 3 human-verify pending)
+Status: Checkpoint — 03-03 Task 3 human alert demo verification
+Last activity: 2026-07-08 -- Completed 03-03 Tasks 1-2; awaiting human alert demo checkpoint
 
 Progress: [█████████░] 89%
 
@@ -77,7 +77,8 @@ Recent decisions affecting current work:
 - [Phase 01-core-inference-api]: MON-01 metric labels use route template path not raw URLs — Prevents high-cardinality labels from image_url query params per threat model T-01-11
 - [Phase 03-local-dev-stack-dashboards]: Use --storage.tsdb.retention.time=7d CLI flag on prom/prometheus:v3.3.0; config-file retention unsupported in pinned tag
 - [Phase 03-local-dev-stack-dashboards]: E2E test copies .env.example to .env when missing for compose env_file
-- [Phase 03-local-dev-stack-dashboards]: Grafana E2E uses /api/dashboards/uid/{uid} with polling instead of search query because uid search returns empty
+- [Phase 03-local-dev-stack-dashboards]: Alert evaluation interval 10s (not 15s) because Grafana scheduler base is 10s
+- [Phase 03-local-dev-stack-dashboards]: Service Down alert uses threshold lt 1 on up{job="app"} for reliable Firing transitions
 
 ### Pending Todos
 
@@ -98,6 +99,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-08T20:38:00Z
-Stopped at: Completed 03-02-PLAN.md
-Resume file: None
+Last session: 2026-07-08T20:52:00Z
+Stopped at: Checkpoint 03-03 Task 3 — alert demo human-verify
+Resume file: .planning/phases/03-local-dev-stack-dashboards/03-03-PLAN.md (Task 3)
