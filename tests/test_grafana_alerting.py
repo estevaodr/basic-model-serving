@@ -49,4 +49,5 @@ def test_downtime_alert_has_required_annotations():
 def test_downtime_alert_rule_group_interval():
     content = _alert_text()
 
-    assert "15s" in content
+    # Grafana scheduler base interval is 10s; rule group interval must be a multiple.
+    assert "10s" in content
