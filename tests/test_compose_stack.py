@@ -100,12 +100,36 @@ def _post_predict_fixture() -> dict:
         return json.loads(response.read().decode("utf-8"))
 
 
+def _wait_prometheus(timeout: float = 60) -> None:
+    deadline = time.monotonic() + timeout
+    url = f"{PROMETHEUS_BASE}/-/ready"
+    while time.monotonic() < deadline:
+        try:
+            with urllib.request.urlopen(url, timeout=3) as response:
+                if response.status == 200:
+                    return
+        except (urllib.error.URLError, TimeoutError, ConnectionResetError, OSError):
+            pass
+        time.sleep(1)
+    raise TimeoutError(f"Prometheus /-/ready did not return 200 within {timeout}s")
+
+
 def _prometheus_query(expr: str) -> list[dict]:
     query = urllib.parse.urlencode({"query": expr})
     url = f"{PROMETHEUS_BASE}/api/v1/query?{query}"
     with urllib.request.urlopen(url, timeout=10) as response:
         payload = json.loads(response.read().decode("utf-8"))
     return payload.get("data", {}).get("result", [])
+
+
+def _wait_prometheus_metric(expr: str, timeout: float = 45) -> list[dict]:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        results = _prometheus_query(expr)
+        if results:
+            return results
+        time.sleep(2)
+    raise TimeoutError(f"Prometheus query {expr!r} returned no samples within {timeout}s")
 
 
 @pytest.mark.docker
@@ -130,11 +154,12 @@ def test_compose_stack_e2e():
         predictions = _post_predict_fixture()["predictions"]
         assert len(predictions) == 5
 
-        up_results = _prometheus_query('up{job="app"}')
-        assert up_results, "expected up{job=\"app\"} samples from Prometheus"
+        _wait_prometheus()
+
+        up_results = _wait_prometheus_metric('up{job="app"}')
         assert any(item.get("value", [None, None])[1] == "1" for item in up_results)
 
-        request_count_results = _prometheus_query("request_count_total")
+        request_count_results = _wait_prometheus_metric("request_count_total")
         assert len(request_count_results) > 0
     finally:
         _compose("down", "-v", check=False)
