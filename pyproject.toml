@@ -19,4 +19,5 @@ packages = ["scripts"]
 [tool.pytest.ini_options]
 markers = [
     "docker: needs Docker daemon for container E2E",
+    "compose: needs Docker daemon and docker compose stack",
 ]
