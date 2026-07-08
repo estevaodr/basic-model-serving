@@ -467,16 +467,13 @@ docker compose start app
 | A3 | Hand-exported Grafana alert YAML is acceptable for MON-05 | Pattern 4 | If export format differs across Grafana patch versions, planner adds validation step |
 | A4 | `request_count_total` / `request_duration_bucket` are the exported names | PromQL examples | Verify at `/metrics` — prometheus_client naming is consistent but should be confirmed in Wave 0 smoke |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Exact Grafana alert YAML shape**
-   - What we know: File provisioning goes in `provisioning/alerting/`; requires `datasourceUid` matching provisioned Prometheus uid [CITED: Grafana alerting file provisioning].
-   - What's unclear: Minimal hand-written YAML vs UI export for first commit.
-   - Recommendation: Implement alert manually once in UI against `up{job="app"}`, export, commit — fastest path to MON-03/MON-05.
+1. **Exact Grafana alert YAML shape** — **RESOLVED**
+   - Resolution: Bootstrap via one-time Grafana UI export after manual rule creation against `up{job="app"}`, then commit sanitized YAML to `monitoring/grafana/provisioning/alerting/downtime.yml` (03-03 Task 1). Hand-authoring the `data:` query block is error-prone; UI export is the fastest path to MON-03/MON-05.
 
-2. **Grafana admin password via `.env` vs inline compose**
-   - What we know: D-08 requires README + `.env.example` documentation.
-   - Recommendation: Use `env_file: .env` on grafana service with `GF_SECURITY_ADMIN_PASSWORD=admin` in `.env.example` (planner discretion D-53).
+2. **Grafana admin password via `.env` vs inline compose** — **RESOLVED**
+   - Resolution: Use inline `environment:` on the compose `grafana` service with `GF_SECURITY_ADMIN_USER=admin` and `GF_SECURITY_ADMIN_PASSWORD=admin` (03-01 Task 2). Document in README and as commented lines in `.env.example` (03-03 Task 2). Do NOT add uncommented `GF_*` keys to `.env.example` — would break `tests/test_docker_config.py`.
 
 ## Environment Availability
 
