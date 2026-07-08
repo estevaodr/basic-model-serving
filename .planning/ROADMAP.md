@@ -90,7 +90,21 @@ Plans:
   3. The Grafana datasource and dashboard are provisioned automatically from code on startup, with no manual UI clicking required
   4. An alert fires when the service goes down, and Prometheus retains metric history for 7+ days
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Compose stack E2E: API + Prometheus scrape + Grafana datasource (CONT-04, MON-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 03-02-PLAN.md — Model Serving Overview dashboard provisioned as home dashboard (MON-02, MON-05)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 03-03-PLAN.md — Downtime alert provisioning + README observability quickstart (MON-03, MON-05)
+
 **UI hint**: yes
 
 ### Phase 4: CI/CD Pipeline
@@ -149,7 +163,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Core Inference API | 4/4 | Complete    | 2026-07-07 |
 | 2. Containerization | 0/2 | Not started | - |
-| 3. Local Dev Stack & Dashboards | 0/TBD | Not started | - |
+| 3. Local Dev Stack & Dashboards | 0/3 | Not started | - |
 | 4. CI/CD Pipeline | 0/TBD | Not started | - |
 | 5. Kubernetes Deployment (via werf) | 0/TBD | Not started | - |
 | 6. Polish, Differentiators & README | 0/TBD | Not started | - |
