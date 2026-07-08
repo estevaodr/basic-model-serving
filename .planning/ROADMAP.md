@@ -99,7 +99,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 03-02-PLAN.md — Model Serving Overview dashboard provisioned as home dashboard (MON-02, MON-05)
+- [x] 03-02-PLAN.md — Model Serving Overview dashboard provisioned as home dashboard (MON-02, MON-05)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -163,7 +163,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Core Inference API | 4/4 | Complete    | 2026-07-07 |
 | 2. Containerization | 0/2 | Not started | - |
-| 3. Local Dev Stack & Dashboards | 1/3 | In progress | - |
+| 3. Local Dev Stack & Dashboards | 2/3 | In Progress|  |
 | 4. CI/CD Pipeline | 0/TBD | Not started | - |
 | 5. Kubernetes Deployment (via werf) | 0/TBD | Not started | - |
 | 6. Polish, Differentiators & README | 0/TBD | Not started | - |

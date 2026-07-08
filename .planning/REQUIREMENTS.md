@@ -42,10 +42,10 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Monitoring
 
 - [x] **MON-01**: Prometheus scrapes application metrics: `request_count`, `request_duration` (histogram), `prediction_count`
-- [ ] **MON-02**: Grafana dashboard displays 5-7 key metrics with real data
+- [x] **MON-02**: Grafana dashboard displays 5-7 key metrics with real data
 - [ ] **MON-03**: Alert is configured for service downtime
 - [x] **MON-04**: Metrics are retained for 7+ days
-- [ ] **MON-05**: Grafana datasource and dashboard are provisioned as code (not manual clicking)
+- [x] **MON-05**: Grafana datasource and dashboard are provisioned as code (not manual clicking)
 
 ### CI/CD
 
@@ -132,10 +132,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | K8S-05 | Phase 5 | Pending |
 | K8S-06 | Phase 5 | Pending |
 | MON-01 | Phase 1 | Complete |
-| MON-02 | Phase 3 | Pending |
+| MON-02 | Phase 3 | Complete |
 | MON-03 | Phase 3 | Pending |
 | MON-04 | Phase 3 | Complete |
-| MON-05 | Phase 3 | Pending |
+| MON-05 | Phase 3 | Complete |
 | CI-01 | Phase 4 | Pending |
 | CI-02 | Phase 4 | Pending |
 | CI-03 | Phase 4 | Pending |
