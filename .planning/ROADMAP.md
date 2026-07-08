@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Core Inference API** - Working `/predict` + health endpoints + metrics instrumentation, model loaded once in memory (completed 2026-07-07)
 - [ ] **Phase 2: Containerization** - Multi-stage, non-root, <2GB Docker image configured via env vars
-- [ ] **Phase 3: Local Dev Stack & Dashboards** - `docker-compose` stack with live Grafana dashboards, provisioned as code
+- [x] **Phase 3: Local Dev Stack & Dashboards** - `docker-compose` stack with live Grafana dashboards, provisioned as code (completed 2026-07-08)
 - [ ] **Phase 4: CI/CD Pipeline** - GitHub Actions lint/test/build/push to GHCR on every push to `main`
 - [ ] **Phase 5: Kubernetes Deployment (via werf)** - Orchestrated, self-healing, zero-downtime deployment to minikube
 - [ ] **Phase 6: Polish, Differentiators & README** - Load-test proof, SLO alert demo, and reviewer-ready documentation
@@ -103,7 +103,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 03-03-PLAN.md — Downtime alert provisioning + README observability quickstart (MON-03, MON-05)
+- [x] 03-03-PLAN.md — Downtime alert provisioning + README observability quickstart (MON-03, MON-05)
 
 **UI hint**: yes
 

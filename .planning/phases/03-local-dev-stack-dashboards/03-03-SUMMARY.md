@@ -12,6 +12,7 @@ provides:
   - Service Down unified alerting rule provisioned from git
   - README local observability stack quickstart with curl traffic and alert demo
   - Static alert provisioning contract tests
+  - Human-verified alert Firing/Resolved demo workflow
 affects: []
 
 tech-stack:
@@ -34,23 +35,22 @@ patterns-established:
   - "Pattern: Grafana alert provisioning in monitoring/grafana/provisioning/alerting/ with no contact points"
   - "Pattern: README Local observability stack section documents plain docker compose up workflow"
 
-requirements-completed: []
+requirements-completed: [MON-03, MON-05, CONT-04]
 
-duration: 12min
+duration: 16min
 completed: 2026-07-08
-checkpoint-pending: Task 3 human alert demo verification
 ---
 
 # Phase 03 Plan 03: Downtime Alert and Observability Quickstart Summary
 
-**Service Down Grafana unified alert provisioned as code with README compose quickstart; automated firing/recovery verified, awaiting human UI checkpoint**
+**Service Down Grafana unified alert provisioned as code with README compose quickstart and human-verified Firing/Resolved demo**
 
 ## Performance
 
-- **Duration:** 12 min
+- **Duration:** 16 min
 - **Started:** 2026-07-08T20:40:00Z
-- **Completed:** 2026-07-08T20:52:00Z (checkpoint pending)
-- **Tasks:** 2/3 complete (Task 3 human-verify pending)
+- **Completed:** 2026-07-08T20:56:00Z
+- **Tasks:** 3/3
 - **Files modified:** 4
 
 ## Accomplishments
@@ -58,7 +58,7 @@ checkpoint-pending: Task 3 human alert demo verification
 - TDD alert contract tests (RED) then Service Down provisioning YAML (GREEN)
 - Grafana loads Service Down rule on compose startup without contact points
 - README documents full reviewer workflow: docker-build → compose up → curl → dashboards → alert demo
-- Automated runtime verification: alert Firing after 75s API stop, Normal after restart
+- Human-verified alert demo: Firing after sustained API stop, Normal after restart, no false firing on healthy boot
 
 ## Task Commits
 
@@ -66,7 +66,9 @@ Each task was committed atomically:
 
 1. **Task 1: Alert provisioning and static validation tests** - `32e163c` (test), `3b6f1d1` (feat), `aca9fb8` (fix)
 2. **Task 2: README observability quickstart and reviewer workflow** - `dcfc5dd` (docs)
-3. **Task 3: Alert Firing/Resolved demo verification** - pending human checkpoint
+3. **Task 3: Alert Firing/Resolved demo verification** - verified (human checkpoint; no code commit)
+
+**Plan metadata:** `6e10dd9` (docs: initial summary), updated in completion commit
 
 ## Files Created/Modified
 
@@ -107,17 +109,17 @@ Each task was committed atomically:
 
 ## Issues Encountered
 
-Task 3 requires human Grafana UI confirmation per plan checkpoint. Automated API verification passed (Firing → Normal) but human-verify gate not yet cleared.
+None — Task 3 human checkpoint cleared after operator verified Grafana Alerting UI and API/Prometheus behavior.
 
 ## User Setup Required
 
-None for Tasks 1–2. Task 3: operator confirms alert demo in Grafana UI per README steps.
+None - no external service configuration required.
 
 ## Next Phase Readiness
 
-- MON-05 provisioning complete (datasource + dashboard + alert) once Task 3 human checkpoint passes
-- CONT-04 documented workflow ready for reviewer clone-and-run
-- Phase 3 can close after human confirms Grafana Alerting UI states
+- Phase 3 observability vertical slice complete: compose stack, dashboards, alert, README quickstart
+- MON-05 fully satisfied (datasource + dashboard + alert provisioned as code)
+- Ready for Phase 4 CI/CD pipeline
 
 ## Self-Check: PASSED
 
@@ -128,7 +130,8 @@ None for Tasks 1–2. Task 3: operator confirms alert demo in Grafana UI per REA
 - FOUND: 3b6f1d1
 - FOUND: dcfc5dd
 - FOUND: aca9fb8
+- FOUND: 6e10dd9
 
 ---
 *Phase: 03-local-dev-stack-dashboards*
-*Completed: 2026-07-08 (checkpoint pending)*
+*Completed: 2026-07-08*
