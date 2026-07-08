@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import shutil
 import subprocess
@@ -24,8 +25,11 @@ ENV_EXAMPLE = PROJECT_ROOT / ".env.example"
 HOST = "127.0.0.1"
 APP_PORT = 8000
 PROMETHEUS_PORT = 9090
+GRAFANA_PORT = 3000
 APP_BASE = f"http://{HOST}:{APP_PORT}"
 PROMETHEUS_BASE = f"http://{HOST}:{PROMETHEUS_PORT}"
+GRAFANA_BASE = f"http://{HOST}:{GRAFANA_PORT}"
+GRAFANA_AUTH = ("admin", "admin")
 
 
 def _docker_available() -> bool:
@@ -132,6 +136,55 @@ def _wait_prometheus_metric(expr: str, timeout: float = 45) -> list[dict]:
     raise TimeoutError(f"Prometheus query {expr!r} returned no samples within {timeout}s")
 
 
+def _wait_grafana(timeout: float = 60) -> None:
+    deadline = time.monotonic() + timeout
+    url = f"{GRAFANA_BASE}/api/health"
+    while time.monotonic() < deadline:
+        try:
+            request = urllib.request.Request(url)
+            with urllib.request.urlopen(request, timeout=3) as response:
+                if response.status == 200:
+                    return
+        except (urllib.error.URLError, TimeoutError, ConnectionResetError, OSError):
+            pass
+        time.sleep(1)
+    raise TimeoutError(f"Grafana /api/health did not return 200 within {timeout}s")
+
+
+def _grafana_request(path: str) -> dict | list:
+    url = f"{GRAFANA_BASE}{path}"
+    credentials = f"{GRAFANA_AUTH[0]}:{GRAFANA_AUTH[1]}".encode("utf-8")
+    request = urllib.request.Request(
+        url,
+        headers={"Authorization": f"Basic {base64.b64encode(credentials).decode('ascii')}"},
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def _grafana_dashboard_by_uid(uid: str) -> dict | None:
+    try:
+        payload = _grafana_request(f"/api/dashboards/uid/{uid}")
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return None
+        raise
+    dashboard = payload.get("dashboard")
+    if not isinstance(dashboard, dict):
+        return None
+    return dashboard
+
+
+def _wait_grafana_dashboard(uid: str, timeout: float = 30) -> dict:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        dashboard = _grafana_dashboard_by_uid(uid)
+        if dashboard is not None:
+            return dashboard
+        time.sleep(1)
+    raise TimeoutError(f"Grafana dashboard {uid!r} not provisioned within {timeout}s")
+
+
 @pytest.mark.docker
 @pytest.mark.compose
 def test_compose_stack_e2e():
@@ -161,5 +214,41 @@ def test_compose_stack_e2e():
 
         request_count_results = _wait_prometheus_metric("request_count_total")
         assert len(request_count_results) > 0
+    finally:
+        _compose("down", "-v", check=False)
+
+
+@pytest.mark.docker
+@pytest.mark.compose
+def test_grafana_dashboard_has_data_after_traffic():
+    if not _docker_available():
+        pytest.skip("Docker daemon not available")
+
+    if not COMPOSE_FILE.exists():
+        pytest.fail(f"docker-compose.yml not found at {COMPOSE_FILE}")
+
+    _ensure_env_file()
+    _ensure_image()
+
+    try:
+        up = _compose("up", "-d", "--wait", check=False)
+        if up.returncode != 0:
+            _wait_ready()
+        else:
+            _wait_ready(timeout=120)
+
+        _post_predict_fixture()
+
+        _wait_prometheus()
+        _wait_grafana()
+
+        dashboard = _wait_grafana_dashboard("model-serving-overview")
+        assert dashboard.get("uid") == "model-serving-overview"
+        assert dashboard.get("title") == "Model Serving Overview"
+
+        rate_results = _wait_prometheus_metric("sum(rate(request_count_total[5m]))")
+        assert len(rate_results) > 0
+        value = float(rate_results[0].get("value", [None, "0"])[1])
+        assert value > 0, "Request rate should be non-zero after predict traffic"
     finally:
         _compose("down", "-v", check=False)
