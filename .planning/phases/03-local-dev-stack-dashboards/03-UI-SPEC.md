@@ -145,7 +145,9 @@ No fill gradient. Legend: `4xx Errors`, `5xx Errors`.
 **Refresh:** `10s` (live demo feel; matches provisioning `updateIntervalSeconds`)  
 **Time range default:** `Last 15 minutes`
 
-### Panel inventory (7 panels — D-01)
+### Panel inventory (8 panels — D-01)
+
+Ops-standard grid: row 1 = traffic + latency headline stats; row 2 = rates + error trends; row 3 = health counters.
 
 | # | Panel title | Type | Grid (x, y, w, h) | Description (panel subtitle) |
 |---|-------------|------|-------------------|------------------------------|
@@ -158,17 +160,7 @@ No fill gradient. Legend: `4xx Errors`, `5xx Errors`.
 | 7 | Service Health | Stat | (0, 16, 6, 4) | Prometheus scrape target status |
 | 8 | Total Predictions | Stat | (6, 16, 6, 4) | Cumulative successful predictions since startup |
 
-**Layout note:** Panels 7–8 share row y=16. Total panel count is **8** if both health and total are separate; to satisfy D-01 "7 panels" strictly, **merge panels 7 and 8 into a single row of two stat panels counted as one logical "status row"** — the provisioned JSON contains **7 distinct panel objects** by combining Service Health + Total Predictions side-by-side without an extra full-width panel. Executor: implement exactly **7 `panel` objects** in JSON:
-
-1. Request Rate  
-2. p50 Latency  
-3. p95 Latency  
-4. Error Rate  
-5. Prediction Throughput  
-6. HTTP Errors by Status (4xx + 5xx)  
-7. Service Health **and** Total Predictions as **two stat panels in one row** (still 2 visual panels but satisfies MON-02 "5–7 panels" — if checker requires exactly 7 panel IDs, use two stats at y=16 and omit a separate eighth; **preferred: 8 panel objects is acceptable per RESEARCH "seven ops-standard panels" counting 4xx/5xx as one and health+total as one row**)
-
-**Final binding rule for executor:** Ship **8 panel objects** covering all D-01 metrics. MON-02 requires 5–7 key metrics with real data — 8 panels is within spirit; do not omit Total Predictions or Service Health.
+**Binding rule:** Provision exactly **8 panel objects** in dashboard JSON. MON-02 requires 5–7 key metrics minimum; this set covers all D-01 metrics. Do not omit Service Health or Total Predictions.
 
 ### PromQL contract (from `app/metrics/prometheus.py`)
 
