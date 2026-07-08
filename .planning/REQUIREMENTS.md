@@ -28,7 +28,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **CONT-01**: Multi-stage Dockerfile produces an image <2GB (CPU-only PyTorch build, no CUDA)
 - [ ] **CONT-02**: Container runs as a non-root user
 - [ ] **CONT-03**: Application configuration is provided via environment variables
-- [ ] **CONT-04**: `docker-compose.yml` runs the API, Prometheus, and Grafana together for local development
+- [x] **CONT-04**: `docker-compose.yml` runs the API, Prometheus, and Grafana together for local development
 
 ### Kubernetes
 
@@ -44,7 +44,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **MON-01**: Prometheus scrapes application metrics: `request_count`, `request_duration` (histogram), `prediction_count`
 - [ ] **MON-02**: Grafana dashboard displays 5-7 key metrics with real data
 - [ ] **MON-03**: Alert is configured for service downtime
-- [ ] **MON-04**: Metrics are retained for 7+ days
+- [x] **MON-04**: Metrics are retained for 7+ days
 - [ ] **MON-05**: Grafana datasource and dashboard are provisioned as code (not manual clicking)
 
 ### CI/CD
@@ -124,7 +124,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONT-01 | Phase 2 | Pending |
 | CONT-02 | Phase 2 | Pending |
 | CONT-03 | Phase 2 | Pending |
-| CONT-04 | Phase 3 | Pending |
+| CONT-04 | Phase 3 | Complete |
 | K8S-01 | Phase 5 | Pending |
 | K8S-02 | Phase 5 | Pending |
 | K8S-03 | Phase 5 | Pending |
@@ -134,7 +134,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MON-01 | Phase 1 | Complete |
 | MON-02 | Phase 3 | Pending |
 | MON-03 | Phase 3 | Pending |
-| MON-04 | Phase 3 | Pending |
+| MON-04 | Phase 3 | Complete |
 | MON-05 | Phase 3 | Pending |
 | CI-01 | Phase 4 | Pending |
 | CI-02 | Phase 4 | Pending |
