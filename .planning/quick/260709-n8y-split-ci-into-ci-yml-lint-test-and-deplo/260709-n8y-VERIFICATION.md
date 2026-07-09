@@ -15,10 +15,10 @@ score: 6/6 must-haves verified
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | ci.yml runs lint and test only on push to main and PRs targeting main | ✓ VERIFIED | ci.yml triggers + steps; no docker actions |
+| 1 | ci.yml runs lint and test on PRs targeting main only (no push trigger) | ✓ VERIFIED | ci.yml pull_request only; no push block |
 | 2 | deploy.yml runs Docker build and GHCR push on main push only | ✓ VERIFIED | deploy.yml push trigger only; build-push-action present |
 | 3 | PRs never trigger deploy.yml and never build or push Docker images | ✓ VERIFIED | deploy.yml has no pull_request; ci.yml has no docker steps |
-| 4 | Main push runs ci.yml and deploy.yml in parallel with independent concurrency groups | ✓ VERIFIED | Both trigger on push main; no workflow_run; per-file concurrency |
+| 4 | Main push runs deploy.yml only; ci.yml does not run on main push | ✓ VERIFIED | ci.yml has no push trigger; deploy.yml push to main |
 | 5 | Contract tests assert two-workflow layout and cover D-01 through D-14 across both files | ✓ VERIFIED | 21 tests pass in test_ci_workflow.py + test_deploy_workflow.py |
 | 6 | README documents two workflows and PR vs main behavior | ✓ VERIFIED | ## CI/CD table + parallel note + deploy.yml link |
 

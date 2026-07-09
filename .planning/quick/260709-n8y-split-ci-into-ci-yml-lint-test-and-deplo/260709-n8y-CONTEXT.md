@@ -26,13 +26,12 @@ Supersedes Phase 4 **D-11** (single job). All other Phase 4 decisions (D-01–D-
 - Remove all Docker steps from `ci.yml`; remove all lint/test steps from `deploy.yml`.
 
 ### Triggers
-- **`ci.yml`**: `push` to `main` and `pull_request` targeting `main` (D-01 unchanged).
+- **`ci.yml`**: **`pull_request` targeting `main` only** — no `push` trigger (resume amendment 2026-07-09).
 - **`deploy.yml`**: **`push` to `main` only** — no `pull_request` trigger, no `workflow_run` coupling to CI.
-- On `main` push, CI and deploy may run in parallel (user declined `workflow_run` gate).
 
 ### PR behavior (supersedes D-02 partially)
 - **PRs run `ci.yml` only** (lint + test). No Docker build on PRs.
-- **`main` push** runs both workflows; deploy builds and pushes to GHCR (D-02 push gate unchanged).
+- **`main` push** runs `deploy.yml` only (build + push to GHCR). Lint/test do not re-run on direct main push — merge via PR is the quality gate.
 
 ### Permissions
 - **`ci.yml`**: `contents: read` only (no `packages: write`).

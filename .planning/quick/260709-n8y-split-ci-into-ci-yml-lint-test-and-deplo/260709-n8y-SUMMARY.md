@@ -11,10 +11,14 @@ description: Split CI into ci.yml (lint+test) and deploy.yml (docker build+push)
 
 Split the monolithic CI workflow into two files per locked CONTEXT decisions:
 
-- **`.github/workflows/ci.yml`** — lint + test on push/PR to `main`; `contents: read` only
-- **`.github/workflows/deploy.yml`** — Docker build + GHCR push on `main` push only; `packages: write`
+- **`.github/workflows/ci.yml`** — lint + test on **PRs to `main` only**; `contents: read`
+- **`.github/workflows/deploy.yml`** — Docker build + GHCR push on **`main` push only**; `packages: write`
 
-Supersedes Phase 4 D-11 (single job). PRs no longer run Docker builds.
+Supersedes Phase 4 D-11 (single job). PRs no longer run Docker builds. Direct `main` pushes skip lint/test (PR merge is the gate).
+
+## Resume (2026-07-09)
+
+Removed `push` trigger from `ci.yml` per user request — lint/test no longer runs on direct main pushes.
 
 ## Tasks Completed
 
