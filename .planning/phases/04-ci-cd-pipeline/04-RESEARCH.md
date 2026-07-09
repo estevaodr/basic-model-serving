@@ -430,16 +430,18 @@ Prefer documenting the UI path in PLAN verification; skip API automation unless 
 
 **If wrong:** Prefer UI for A1; treat first cold run as known exception for A2 and document warm-run SLA for CI-04 verification.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **CI-04 verification of cold vs warm**
+1. **CI-04 verification of cold vs warm** — RESOLVED
    - What we know: Local image ~1.35GB; type=gha is required; cold torch download is the long pole.
    - What's unclear: Exact cold-run duration on GitHub-hosted runners for this Dockerfile.
    - Recommendation: Accept first-ever run may be borderline; verify CI-04 on a **warm-cache** main run. If cold consistently >10m, follow-up is Dockerfile cache-layer tuning (not in deferred list — escalate only if measured).
+   - Resolution: Adopted by 04-02 Task 3 — CI-04 acceptance is warm-cache main run; cold vs warm durations recorded in SUMMARY.
 
-2. **Whether to gate `docker/login-action` to main only**
+2. **Whether to gate `docker/login-action` to main only** — RESOLVED
    - What we know: Push is gated; login on PR is common and usually fine.
    - Recommendation: Keep login unconditional for simplicity unless security review objects.
+   - Resolution: Adopted by 04-01 — login remains unconditional; `push` stays gated to main.
 
 ## Environment Availability
 
