@@ -20,6 +20,10 @@ Supersedes Phase 4 D-11 (single job). PRs no longer run Docker builds. Direct `m
 
 Removed `push` trigger from `ci.yml` per user request — lint/test no longer runs on direct main pushes.
 
+## Resume (2026-07-09, CI fix)
+
+Applied `ruff format` to `tests/test_deploy_workflow.py` — CI failed on `ruff format --check` (long assert line).
+
 ## Tasks Completed
 
 | Task | Status | Notes |
