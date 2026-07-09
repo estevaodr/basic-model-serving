@@ -23,10 +23,10 @@ def test_ci_workflow_file_exists():
     assert WORKFLOW_PATH.is_file()
 
 
-def test_d01_triggers_push_and_pr_to_main(workflow_text: str):
-    """D-01: push to main and PRs targeting main."""
-    assert re.search(r"push:\s*\n\s*branches:\s*\[main\]", workflow_text)
+def test_d01_triggers_pr_to_main_only(workflow_text: str):
+    """ci.yml: PRs targeting main only — no push trigger (deploy.yml handles main push)."""
     assert re.search(r"pull_request:\s*\n\s*branches:\s*\[main\]", workflow_text)
+    assert not re.search(r"^\s*push:\s*$", workflow_text, re.MULTILINE)
 
 
 def test_d03_concurrency_cancel_in_progress(workflow_text: str):

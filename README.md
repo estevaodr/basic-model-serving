@@ -126,10 +126,10 @@ Continuous integration and deployment are split across two workflows:
 
 | Event | `ci.yml` | `deploy.yml` |
 |-------|----------|--------------|
-| **Push to `main`** | lint + test | Docker build + GHCR push |
-| **Pull request targeting `main`** | lint + test only | does not run |
+| **Push to `main`** | does not run | Docker build + GHCR push |
+| **Pull request targeting `main`** | lint + test | does not run |
 
-On `main` push, both workflows run **in parallel** — deploy does not wait for CI via `workflow_run`.
+Lint and test run on pull requests; image build and publish run on `main` push only. There is no `workflow_run` gate between them — merge to `main` is the quality gate.
 
 Feature-branch pushes without an open PR do not trigger either workflow.
 
