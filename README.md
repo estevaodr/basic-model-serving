@@ -114,3 +114,74 @@ docker compose restart prometheus
 ### Troubleshooting
 
 If dashboard panels show **No data**, verify the Prometheus target `app` is **UP** at http://localhost:9090/targets.
+
+## CI/CD
+
+Continuous integration is defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+### Triggers
+
+The workflow runs on:
+
+- **Push to `main`** — lint, test, Docker build, and publish to GitHub Container Registry (GHCR)
+- **Pull requests targeting `main`** — lint, test, and Docker build only (no image push)
+
+Feature-branch pushes without an open PR do not trigger CI.
+
+### What CI runs
+
+Each run executes a single job in order:
+
+1. **Lint** — `ruff check` and `ruff format --check`
+2. **Test** — `pytest` excluding `@pytest.mark.docker` and `@pytest.mark.compose` markers
+3. **Build** — multi-stage Docker image via Buildx (same `Dockerfile` as local dev)
+4. **Push** — only on successful `main` pushes (not on pull requests)
+
+CI does **not** run `werf converge`, deploy to Kubernetes, or target minikube. Deployment is handled separately in later phases.
+
+### GHCR image and tags
+
+On successful `main` pushes, the image is published to:
+
+```
+ghcr.io/estevaodr/basic-model-serving
+```
+
+Tags applied on `main`:
+
+| Tag | Example | Description |
+|-----|---------|-------------|
+| Short git SHA | `a1b2c3d` | First 7 characters of the commit SHA |
+| `latest` | `latest` | Most recent successful `main` build |
+| Bare semver | `0.1.0` | Version from `pyproject.toml` (no `v` prefix) |
+
+Pull examples (after the one-time public visibility step below):
+
+```bash
+docker pull ghcr.io/estevaodr/basic-model-serving:latest
+docker pull ghcr.io/estevaodr/basic-model-serving:0.1.0
+docker pull ghcr.io/estevaodr/basic-model-serving:a1b2c3d
+```
+
+No personal access token is required for anonymous pull once the package is public.
+
+### Local dev vs CI images
+
+Local development and the compose stack continue to use the locally built tag:
+
+```bash
+docker build -t basic-model-serving:local .
+```
+
+CI images on GHCR are for reviewers and downstream deployment — not a replacement for `basic-model-serving:local` during day-to-day development.
+
+### One-time GHCR public visibility
+
+GHCR packages default to **private**, even when the repository is public. After the **first successful push to `main`**, make the package pullable without authentication:
+
+1. Open [GitHub → Packages → basic-model-serving](https://github.com/estevaodr/basic-model-serving/pkgs/container/basic-model-serving) (or navigate via your profile → Packages)
+2. Go to **Package settings**
+3. Scroll to **Danger Zone** → **Change visibility**
+4. Select **Public** and confirm
+
+This change is **irreversible**. Once public, anyone can pull the image without logging in to GHCR.

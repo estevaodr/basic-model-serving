@@ -104,7 +104,7 @@ def _predict_from_url(image_url: str, classifier) -> PredictResponse:
     description=(
         "Submit an image for ResNet-50 top-5 ImageNet classification. "
         "Use `multipart/form-data` with a `file` field for direct upload, "
-        "or `application/json` with `{\"image_url\": \"https://...\"}` "
+        'or `application/json` with `{"image_url": "https://..."}` '
         "to fetch an image from a public URL."
     ),
     responses={
@@ -171,11 +171,15 @@ def predict(request: Request, classifier=Depends(get_classifier)):
     content_type = request.headers.get("content-type", "")
 
     if content_type.startswith("application/json"):
-        body = anyio.from_thread.run(_read_json_body_limited, request, MAX_JSON_BODY_BYTES)
+        body = anyio.from_thread.run(
+            _read_json_body_limited, request, MAX_JSON_BODY_BYTES
+        )
         try:
             raw = json.loads(body)
         except json.JSONDecodeError as exc:
-            raise _client_error("validation_error", "Request body must be valid JSON") from exc
+            raise _client_error(
+                "validation_error", "Request body must be valid JSON"
+            ) from exc
         try:
             payload = PredictUrlRequest.model_validate(raw)
         except ValidationError as exc:

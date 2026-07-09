@@ -49,10 +49,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CI/CD
 
-- [ ] **CI-01**: GitHub Actions pipeline runs on every push to `main`
-- [ ] **CI-02**: Pipeline runs automated linting and tests
-- [ ] **CI-03**: Pipeline builds the Docker image and pushes it to GHCR
-- [ ] **CI-04**: Pipeline completes in <10 minutes
+- [x] **CI-01**: GitHub Actions pipeline runs on every push to `main`
+- [x] **CI-02**: Pipeline runs automated linting and tests
+- [x] **CI-03**: Pipeline builds the Docker image and pushes it to GHCR
+- [x] **CI-04**: Pipeline completes in <10 minutes
 
 ### Performance
 
@@ -136,10 +136,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MON-03 | Phase 3 | Complete |
 | MON-04 | Phase 3 | Complete |
 | MON-05 | Phase 3 | Complete |
-| CI-01 | Phase 4 | Pending |
-| CI-02 | Phase 4 | Pending |
-| CI-03 | Phase 4 | Pending |
-| CI-04 | Phase 4 | Pending |
+| CI-01 | Phase 4 | Complete |
+| CI-02 | Phase 4 | Complete |
+| CI-03 | Phase 4 | Complete |
+| CI-04 | Phase 4 | Complete |
 | PERF-01 | Phase 6 | Pending |
 | PERF-02 | Phase 6 | Pending |
 | PERF-03 | Phase 6 | Pending |

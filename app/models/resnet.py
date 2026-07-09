@@ -16,6 +16,5 @@ class ResNetClassifier:
         probs = self.model(batch).squeeze(0).softmax(0)
         top5 = probs.topk(5)
         return [
-            (self.categories[idx], float(probs[idx]))
-            for idx in top5.indices.tolist()
+            (self.categories[idx], float(probs[idx])) for idx in top5.indices.tolist()
         ]

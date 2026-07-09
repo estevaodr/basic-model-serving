@@ -120,7 +120,16 @@ Plans:
   3. On success, a Docker image is built and pushed to GHCR with a usable tag
   4. The full pipeline (lint → test → build → push) completes in under 10 minutes
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+**Wave 1**
+
+- [x] 04-01-PLAN.md — Single-job ci.yml: lint → test → Buildx → gated GHCR push + contract tests (CI-01–CI-04, D-01–D-14)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 04-02-PLAN.md — README CI/GHCR docs + human verify Public package and warm <10 min (CI-01, CI-03, CI-04, D-10)
 
 ### Phase 5: Kubernetes Deployment (via werf)
 
@@ -164,6 +173,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Core Inference API | 4/4 | Complete    | 2026-07-07 |
 | 2. Containerization | 0/2 | Not started | - |
 | 3. Local Dev Stack & Dashboards | 3/3 | Complete    | 2026-07-09 |
-| 4. CI/CD Pipeline | 0/TBD | Not started | - |
+| 4. CI/CD Pipeline | 1/2 | In Progress|  |
 | 5. Kubernetes Deployment (via werf) | 0/TBD | Not started | - |
 | 6. Polish, Differentiators & README | 0/TBD | Not started | - |

@@ -9,10 +9,19 @@ import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DASHBOARD_JSON = (
-    PROJECT_ROOT / "monitoring" / "grafana" / "dashboards" / "model-serving-overview.json"
+    PROJECT_ROOT
+    / "monitoring"
+    / "grafana"
+    / "dashboards"
+    / "model-serving-overview.json"
 )
 DASHBOARD_PROVIDER = (
-    PROJECT_ROOT / "monitoring" / "grafana" / "provisioning" / "dashboards" / "dashboard.yml"
+    PROJECT_ROOT
+    / "monitoring"
+    / "grafana"
+    / "provisioning"
+    / "dashboards"
+    / "dashboard.yml"
 )
 
 REQUIRED_PANEL_TITLES = [
@@ -113,7 +122,9 @@ def test_dashboard_promql_uses_phase1_metrics():
 
 
 def test_dashboard_provider_yaml_exists():
-    assert DASHBOARD_PROVIDER.exists(), f"Dashboard provider missing: {DASHBOARD_PROVIDER}"
+    assert DASHBOARD_PROVIDER.exists(), (
+        f"Dashboard provider missing: {DASHBOARD_PROVIDER}"
+    )
     provider = yaml.safe_load(DASHBOARD_PROVIDER.read_text(encoding="utf-8"))
 
     providers = provider.get("providers", [])
