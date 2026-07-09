@@ -70,7 +70,7 @@ Each task was committed atomically where applicable:
 2. **Task 2: Push branch and confirm Actions run exists** - `76d5807` (fix)
 3. **Task 3: Verify main publish, public GHCR, and warm <10 min** - human approved (checkpoint)
 
-**Plan metadata:** `a28ad2f` (docs: complete plan)
+**Plan metadata:** `5137246` (docs: complete plan)
 
 ## Human Verification Evidence (Task 3)
 
