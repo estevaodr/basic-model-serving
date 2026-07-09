@@ -50,7 +50,8 @@ def test_d11_single_ci_job(workflow_text: str):
     assert re.search(r"^\s*ci:\s*$", workflow_text, re.MULTILINE)
     assert "quality-gate" not in workflow_text
     assert "build-and-push" not in workflow_text
-    job_names = re.findall(r"^\s{2}(\w+):\s*$", workflow_text, re.MULTILINE)
+    jobs_section = workflow_text.split("jobs:", 1)[1]
+    job_names = re.findall(r"^\s{2}(\w+):\s*$", jobs_section, re.MULTILINE)
     assert job_names == ["ci"], f"expected exactly one job 'ci', got {job_names}"
 
 
