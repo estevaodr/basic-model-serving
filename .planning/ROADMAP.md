@@ -173,6 +173,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Core Inference API | 4/4 | Complete    | 2026-07-07 |
 | 2. Containerization | 0/2 | Not started | - |
 | 3. Local Dev Stack & Dashboards | 3/3 | Complete    | 2026-07-09 |
-| 4. CI/CD Pipeline | 2/2 | Complete   | 2026-07-09 |
+| 4. CI/CD Pipeline | 2/2 | Complete    | 2026-07-09 |
 | 5. Kubernetes Deployment (via werf) | 0/TBD | Not started | - |
 | 6. Polish, Differentiators & README | 0/TBD | Not started | - |
