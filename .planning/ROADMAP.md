@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Core Inference API** - Working `/predict` + health endpoints + metrics instrumentation, model loaded once in memory (completed 2026-07-07)
 - [ ] **Phase 2: Containerization** - Multi-stage, non-root, <2GB Docker image configured via env vars
 - [x] **Phase 3: Local Dev Stack & Dashboards** - `docker-compose` stack with live Grafana dashboards, provisioned as code (completed 2026-07-08)
-- [ ] **Phase 4: CI/CD Pipeline** - GitHub Actions lint/test/build/push to GHCR on every push to `main`
+- [x] **Phase 4: CI/CD Pipeline** - GitHub Actions lint/test/build/push to GHCR on every push to `main` (completed 2026-07-09)
 - [ ] **Phase 5: Kubernetes Deployment (via werf)** - Orchestrated, self-healing, zero-downtime deployment to minikube
 - [ ] **Phase 6: Polish, Differentiators & README** - Load-test proof, SLO alert demo, and reviewer-ready documentation
 
@@ -129,7 +129,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 04-02-PLAN.md — README CI/GHCR docs + human verify Public package and warm <10 min (CI-01, CI-03, CI-04, D-10)
+- [x] 04-02-PLAN.md — README CI/GHCR docs + human verify Public package and warm <10 min (CI-01, CI-03, CI-04, D-10)
 
 ### Phase 5: Kubernetes Deployment (via werf)
 
@@ -173,6 +173,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Core Inference API | 4/4 | Complete    | 2026-07-07 |
 | 2. Containerization | 0/2 | Not started | - |
 | 3. Local Dev Stack & Dashboards | 3/3 | Complete    | 2026-07-09 |
-| 4. CI/CD Pipeline | 1/2 | In Progress|  |
+| 4. CI/CD Pipeline | 2/2 | Complete    | 2026-07-09 |
 | 5. Kubernetes Deployment (via werf) | 0/TBD | Not started | - |
 | 6. Polish, Differentiators & README | 0/TBD | Not started | - |

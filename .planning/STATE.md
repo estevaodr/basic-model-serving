@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
+status: "Phase 4 shipped — PR #6 (implementation merged via PR #5)"
 stopped_at: Phase 4 plans created
-last_updated: "2026-07-09T18:53:42.176Z"
-last_activity: 2026-07-09 -- Phase 4 execution started
+last_updated: "2026-07-09T19:26:27.909Z"
+last_activity: 2026-07-09
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 10
-  percent: 50
+  completed_plans: 11
+  percent: 67
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 
 ## Current Position
 
-Phase: 4 (CI/CD Pipeline) — EXECUTING
-Plan: 2 of 2
-Status: Ready to execute
-Last activity: 2026-07-09 -- Phase 4 execution started
+Phase: 5
+Plan: Not started
+Status: Phase 4 shipped — PR #6 (implementation merged via PR #5)
+Last activity: 2026-07-09
 
 Progress: [█████░░░░░] 50%
 
@@ -36,7 +36,7 @@ Progress: [█████░░░░░] 50%
 
 **Velocity:**
 
-- Total plans completed: 7
+- Total plans completed: 9
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -46,6 +46,7 @@ Progress: [█████░░░░░] 50%
 |-------|-------|-------|----------|
 | 01 | 4 | - | - |
 | 03 | 3 | - | - |
+| 4 | 2 | - | - |
 
 **Recent Trend:**
 
@@ -60,6 +61,7 @@ Progress: [█████░░░░░] 50%
 | Phase 03-local-dev-stack-dashboards P01 | 12 | 2 tasks | 5 files |
 | Phase 03-local-dev-stack-dashboards P02 | 25 | 2 tasks | 5 files |
 | Phase 03-local-dev-stack-dashboards P03 | 16 | 3 tasks | 4 files |
+| Phase 04-ci-cd-pipeline P02 | 22 | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -81,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase 03-local-dev-stack-dashboards]: E2E test copies .env.example to .env when missing for compose env_file
 - [Phase 03-local-dev-stack-dashboards]: Alert evaluation interval 10s (not 15s) because Grafana scheduler base is 10s
 - [Phase 03-local-dev-stack-dashboards]: Service Down alert uses threshold lt 1 on up{job="app"} for reliable Firing transitions
+- [Phase ?]: README documents anonymous GHCR pull after one-time Public visibility; no PAT for routine pulls (T-04-07)
+- [Phase ?]: CI-04 warm-cache acceptance: main run 29043440865 completed in ~4m25s
 
 ### Pending Todos
 
@@ -101,6 +105,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-09T18:53:10.995Z
+Last session: 2026-07-09T19:20:12.838Z
 Stopped at: Phase 4 plans created
 Resume file: .planning/phases/04-ci-cd-pipeline/04-01-PLAN.md
