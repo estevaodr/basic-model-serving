@@ -50,7 +50,9 @@ def test_deploy_has_single_deploy_job(workflow_text: str):
     assert "build-and-push" not in workflow_text
     jobs_section = workflow_text.split("jobs:", 1)[1]
     job_names = re.findall(r"^\s{2}(\w+):\s*$", jobs_section, re.MULTILINE)
-    assert job_names == ["deploy"], f"expected exactly one job 'deploy', got {job_names}"
+    assert job_names == ["deploy"], (
+        f"expected exactly one job 'deploy', got {job_names}"
+    )
 
 
 def test_d02_d12_push_gated_to_main_push_event(workflow_text: str):
