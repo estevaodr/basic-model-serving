@@ -44,3 +44,73 @@ Full E2E verification (build, image size, non-root user, health, predict):
 ```bash
 uv run docker-smoke
 ```
+
+## Local observability stack
+
+Run the API together with Prometheus and Grafana for live dashboards during development.
+
+**Prerequisites:** Build the app image once before the first compose start:
+
+```bash
+uv run docker-build
+```
+
+Copy `.env.example` to `.env` if you have not already (compose reads app settings from `.env`).
+
+### Start the stack
+
+```bash
+docker compose up
+```
+
+| Service | URL | Purpose |
+|---------|-----|---------|
+| API | http://localhost:8000 | `/predict`, `/docs`, `/metrics` |
+| Grafana | http://localhost:3000 | Dashboards and alerting UI |
+| Prometheus | http://localhost:9090 | Metrics storage and targets |
+
+Log in to Grafana with `admin` / `admin`. After login you land on the **Model Serving Overview** home dashboard.
+
+### Generate traffic
+
+Send sample predictions so panels populate:
+
+```bash
+curl -s -X POST http://localhost:8000/predict \
+  -F "file=@tests/fixtures/sample.jpg" | jq .
+
+# Optional 4xx example (non-image upload)
+curl -s -X POST http://localhost:8000/predict \
+  -F "file=@README.md"
+```
+
+### Image-only iteration
+
+After code changes, rebuild and restart only the API container:
+
+```bash
+uv run docker-build
+docker compose restart app
+```
+
+### Alert demo (Service Down)
+
+1. With the stack running, open Grafana → **Alerting** → **Alert rules** and confirm **Service Down** is listed.
+2. Stop the API: `docker compose stop app`
+3. Wait ~60–90 seconds.
+4. Confirm **Service Down** transitions to **Firing** in Grafana Alerting.
+5. Restart the API: `docker compose start app`
+6. Wait for `/health/ready`, then ~60 seconds — alert returns to **Normal**.
+
+### Reload monitoring config
+
+After editing files under `monitoring/`, restart the affected service:
+
+```bash
+docker compose restart grafana
+docker compose restart prometheus
+```
+
+### Troubleshooting
+
+If dashboard panels show **No data**, verify the Prometheus target `app` is **UP** at http://localhost:9090/targets.

@@ -18,15 +18,15 @@ A single `POST /predict` request returns accurate top-5 ImageNet predictions in 
 - [x] Health endpoints: `/health/live` and `/health/ready` with model-load-aware readiness — Validated in Phase 1
 - [x] Monitoring: Prometheus custom app metrics (`request_count`, `request_duration`, `prediction_count`) at `/metrics` — Validated in Phase 1
 - [x] Structured JSON logging with request IDs — Validated in Phase 1
+- [x] Local dev: docker-compose stack running API + Prometheus + Grafana together for fast inner-loop iteration — Validated in Phase 3
+- [x] Monitoring: Grafana dashboard with 5-7 key metrics; alert on service downtime; 7+ day metric retention — Validated in Phase 3
 
 ### Active
 
 - [ ] REST API: response time <100ms for images <1MB (architectural enablement done; formal p95 proof deferred to Phase 6)
 - [ ] Containerization: multi-stage Dockerfile, image <2GB, runs as non-root user, config via env vars, `/health` endpoint
-- [ ] Local dev: docker-compose stack running API + Prometheus + Grafana together for fast inner-loop iteration
 - [ ] Kubernetes: Deployment (resource requests/limits), Service, ConfigMap, liveness/readiness probes, zero-downtime rolling updates, running on local minikube
 - [ ] Kubernetes deploys via werf (manual `werf converge`, not automated in CI — see Key Decisions)
-- [ ] Monitoring: Grafana dashboard with 5-7 key metrics; alert on service downtime; 7+ day metric retention
 - [ ] CI/CD: GitHub Actions runs on every push to `main` — lint, test, build Docker image, push to GHCR; pipeline completes in <10 minutes
 - [ ] Performance (should-have): p95 latency <100ms, handles 10+ concurrent requests, model loaded in memory (no cold start), CPU <70% under normal load
 
@@ -84,4 +84,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-07 after Phase 1 completion — Core Inference API complete*
+*Last updated: 2026-07-09 after Phase 3 — Local Dev Stack & Dashboards complete*
