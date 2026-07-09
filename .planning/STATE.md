@@ -99,7 +99,7 @@ None yet.
 
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
-| 260709-n8y | Split CI into ci.yml (lint+test) and deploy.yml (docker build+push) | 2026-07-09 | f9647eb | Verified | [260709-n8y-split-ci-into-ci-yml-lint-test-and-deplo](./quick/260709-n8y-split-ci-into-ci-yml-lint-test-and-deplo/) |
+| 260709-n8y | Split CI into ci.yml (lint+test) and deploy.yml (docker build+push) | 2026-07-09 | 76adf5a | Verified | [260709-n8y-split-ci-into-ci-yml-lint-test-and-deplo](./quick/260709-n8y-split-ci-into-ci-yml-lint-test-and-deplo/) |
 
 ## Deferred Items
 
