@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 Phase: 5
 Plan: Not started
 Status: Phase 4 shipped — PR #6 (implementation merged via PR #5)
-Last activity: 2026-07-09
+Last activity: 2026-07-09 - Completed quick task 260709-n8y: Split CI into ci.yml (lint+test) and deploy.yml (docker build+push)
 
 Progress: [█████░░░░░] 50%
 
@@ -94,6 +94,12 @@ None yet.
 
 - Phase 5 planning must explicitly resolve the kube-prometheus-stack vs. hand-rolled Prometheus/Grafana manifests tradeoff (research/SUMMARY.md flags this as unresolved between STACK.md and ARCHITECTURE.md)
 - Phase 1 planning should confirm SSRF prevention implementation specifics (no ready-made library identified in research; `ipaddress` stdlib checks are the fallback)
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 260709-n8y | Split CI into ci.yml (lint+test) and deploy.yml (docker build+push) | 2026-07-09 | f9647eb | Verified | [260709-n8y-split-ci-into-ci-yml-lint-test-and-deplo](./quick/260709-n8y-split-ci-into-ci-yml-lint-test-and-deplo/) |
 
 ## Deferred Items
 
