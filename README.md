@@ -117,25 +117,35 @@ If dashboard panels show **No data**, verify the Prometheus target `app` is **UP
 
 ## CI/CD
 
-Continuous integration is defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+Continuous integration and deployment are split across two workflows:
+
+- [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — lint and test
+- [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) — Docker build and GHCR publish
 
 ### Triggers
 
-The workflow runs on:
+| Event | `ci.yml` | `deploy.yml` |
+|-------|----------|--------------|
+| **Push to `main`** | lint + test | Docker build + GHCR push |
+| **Pull request targeting `main`** | lint + test only | does not run |
 
-- **Push to `main`** — lint, test, Docker build, and publish to GitHub Container Registry (GHCR)
-- **Pull requests targeting `main`** — lint, test, and Docker build only (no image push)
+On `main` push, both workflows run **in parallel** — deploy does not wait for CI via `workflow_run`.
 
-Feature-branch pushes without an open PR do not trigger CI.
+Feature-branch pushes without an open PR do not trigger either workflow.
 
-### What CI runs
+### What each workflow runs
 
-Each run executes a single job in order:
+**CI** (`ci.yml`) — single job:
 
 1. **Lint** — `ruff check` and `ruff format --check`
 2. **Test** — `pytest` excluding `@pytest.mark.docker` and `@pytest.mark.compose` markers
-3. **Build** — multi-stage Docker image via Buildx (same `Dockerfile` as local dev)
-4. **Push** — only on successful `main` pushes (not on pull requests)
+
+**Deploy** (`deploy.yml`) — single job (main push only):
+
+1. **Build** — multi-stage Docker image via Buildx (same `Dockerfile` as local dev)
+2. **Push** — publish to GitHub Container Registry (GHCR)
+
+Pull requests never trigger `deploy.yml` and never build or push Docker images.
 
 CI does **not** run `werf converge`, deploy to Kubernetes, or target minikube. Deployment is handled separately in later phases.
 

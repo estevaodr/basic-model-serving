@@ -1,4 +1,4 @@
-"""Static contract tests for .github/workflows/ci.yml (D-01..D-14)."""
+"""Static contract tests for .github/workflows/ci.yml (lint+test only)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 
 WORKFLOW_PATH = Path(".github/workflows/ci.yml")
-PROJECT_VERSION = "0.1.0"
 
 
 @pytest.fixture(scope="module")
@@ -37,20 +36,24 @@ def test_d03_concurrency_cancel_in_progress(workflow_text: str):
     assert "github.ref" in workflow_text
 
 
-def test_permissions_contents_read_packages_write(workflow_text: str):
-    """T-04-01: minimal token scopes for GHCR push."""
+def test_ci_permissions_contents_read_only(workflow_text: str):
+    """T-04-01: CI uses read-only contents scope; no GHCR push permission."""
     assert re.search(r"contents:\s*read", workflow_text)
-    assert re.search(r"packages:\s*write", workflow_text)
+    assert not re.search(r"packages:\s*write", workflow_text)
 
 
-def test_d11_single_ci_job(workflow_text: str):
-    """D-11: single job named ci — no quality-gate / build-and-push split."""
+def test_two_workflow_layout_ci_has_single_ci_job(workflow_text: str):
+    """Supersedes D-11: ci.yml has exactly one lint+test job; no Docker steps."""
     assert re.search(r"^\s*ci:\s*$", workflow_text, re.MULTILINE)
     assert "quality-gate" not in workflow_text
     assert "build-and-push" not in workflow_text
     jobs_section = workflow_text.split("jobs:", 1)[1]
     job_names = re.findall(r"^\s{2}(\w+):\s*$", jobs_section, re.MULTILINE)
     assert job_names == ["ci"], f"expected exactly one job 'ci', got {job_names}"
+    assert "docker/build-push-action" not in workflow_text
+    assert "docker/setup-buildx-action" not in workflow_text
+    assert "docker/login-action" not in workflow_text
+    assert "docker/metadata-action" not in workflow_text
 
 
 def test_d07_d14_setup_uv_python_cache(workflow_text: str):
@@ -80,41 +83,6 @@ def test_d05_d06_ruff_check_and_format_before_pytest(workflow_text: str):
 def test_d04_pytest_excludes_docker_and_compose_markers(workflow_text: str):
     """D-04: CI runs unit/API tests only."""
     assert "not docker and not compose" in workflow_text
-
-
-def test_d02_d12_push_gated_to_main_push_event(workflow_text: str):
-    """D-02/D-12: PRs build without push; main push publishes."""
-    assert (
-        "github.event_name == 'push' && github.ref == 'refs/heads/main'"
-        in workflow_text
-    )
-    assert "docker/build-push-action@v7" in workflow_text
-
-
-def test_d13_gha_docker_layer_cache(workflow_text: str):
-    """D-13: GitHub Actions cache for Docker layers."""
-    assert "cache-from: type=gha" in workflow_text
-    assert "cache-to: type=gha,mode=max" in workflow_text
-
-
-def test_d08_d09_ghcr_metadata_tags(workflow_text: str):
-    """D-08/D-09: SHA, latest, and bare semver tags on main."""
-    assert "ghcr.io/${{ github.repository }}" in workflow_text
-    assert "type=sha,prefix=,format=short" in workflow_text
-    assert "type=raw,value=latest" in workflow_text
-    assert "type=raw,value=${{ steps.version.outputs.version }}" in workflow_text
-    assert (
-        PROJECT_VERSION in workflow_text
-        or "steps.version.outputs.version" in workflow_text
-    )
-
-
-def test_docker_buildx_and_login_actions(workflow_text: str):
-    """D-12: official docker actions with pinned majors."""
-    assert "docker/setup-buildx-action@v4" in workflow_text
-    assert "docker/login-action@v4" in workflow_text
-    assert "docker/metadata-action@v6" in workflow_text
-    assert "actions/checkout@v7" in workflow_text
 
 
 def test_no_werf_or_compose_e2e_or_docker_scripts(workflow_text: str):
