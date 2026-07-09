@@ -6,7 +6,12 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DOWNTIME_ALERT = (
-    PROJECT_ROOT / "monitoring" / "grafana" / "provisioning" / "alerting" / "downtime.yml"
+    PROJECT_ROOT
+    / "monitoring"
+    / "grafana"
+    / "provisioning"
+    / "alerting"
+    / "downtime.yml"
 )
 
 FORBIDDEN_CONTACT_TERMS = (
@@ -36,7 +41,9 @@ def test_downtime_alert_yaml_contract():
 
     lowered = content.lower()
     for term in FORBIDDEN_CONTACT_TERMS:
-        assert term not in lowered, f"Alert config must not include contact point term: {term}"
+        assert term not in lowered, (
+            f"Alert config must not include contact point term: {term}"
+        )
 
 
 def test_downtime_alert_has_required_annotations():

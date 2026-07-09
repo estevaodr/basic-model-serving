@@ -34,9 +34,7 @@ def validate_url(url: str) -> tuple[str, str]:
 
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
     try:
-        addrinfos = socket.getaddrinfo(
-            parsed.hostname, port, type=socket.SOCK_STREAM
-        )
+        addrinfos = socket.getaddrinfo(parsed.hostname, port, type=socket.SOCK_STREAM)
     except socket.gaierror as exc:
         raise UrlFetchError("url_fetch_failed", "Could not resolve hostname") from exc
 

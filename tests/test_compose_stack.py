@@ -90,10 +90,14 @@ def _post_predict_fixture() -> dict:
     boundary = "----ComposeStackBoundary"
     image_bytes = FIXTURE_IMAGE.read_bytes()
     body = (
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="file"; filename="sample.jpg"\r\n'
-        f"Content-Type: image/jpeg\r\n\r\n"
-    ).encode("utf-8") + image_bytes + f"\r\n--{boundary}--\r\n".encode("utf-8")
+        (
+            f"--{boundary}\r\n"
+            f'Content-Disposition: form-data; name="file"; filename="sample.jpg"\r\n'
+            f"Content-Type: image/jpeg\r\n\r\n"
+        ).encode("utf-8")
+        + image_bytes
+        + f"\r\n--{boundary}--\r\n".encode("utf-8")
+    )
     request = urllib.request.Request(
         f"{APP_BASE}/predict",
         data=body,
@@ -133,7 +137,9 @@ def _wait_prometheus_metric(expr: str, timeout: float = 45) -> list[dict]:
         if results:
             return results
         time.sleep(2)
-    raise TimeoutError(f"Prometheus query {expr!r} returned no samples within {timeout}s")
+    raise TimeoutError(
+        f"Prometheus query {expr!r} returned no samples within {timeout}s"
+    )
 
 
 def _wait_grafana(timeout: float = 60) -> None:
@@ -156,7 +162,9 @@ def _grafana_request(path: str) -> dict | list:
     credentials = f"{GRAFANA_AUTH[0]}:{GRAFANA_AUTH[1]}".encode("utf-8")
     request = urllib.request.Request(
         url,
-        headers={"Authorization": f"Basic {base64.b64encode(credentials).decode('ascii')}"},
+        headers={
+            "Authorization": f"Basic {base64.b64encode(credentials).decode('ascii')}"
+        },
     )
     with urllib.request.urlopen(request, timeout=10) as response:
         return json.loads(response.read().decode("utf-8"))

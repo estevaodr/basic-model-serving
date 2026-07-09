@@ -1,5 +1,6 @@
 from app.metrics.prometheus import PREDICTION_COUNT
 
+
 def _metric_value(metrics_text: str, name: str) -> float:
     for line in metrics_text.splitlines():
         if line.startswith("#"):

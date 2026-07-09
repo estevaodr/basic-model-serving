@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import io
 import json
-import shutil
 import subprocess
 import sys
 import time
@@ -78,10 +77,14 @@ def _post_predict() -> dict[str, Any]:
     jpeg = _make_sample_jpeg()
     boundary = "----BasicModelServingBoundary"
     body = (
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="file"; filename="sample.jpg"\r\n'
-        f"Content-Type: image/jpeg\r\n\r\n"
-    ).encode("utf-8") + jpeg + f"\r\n--{boundary}--\r\n".encode("utf-8")
+        (
+            f"--{boundary}\r\n"
+            f'Content-Disposition: form-data; name="file"; filename="sample.jpg"\r\n'
+            f"Content-Type: image/jpeg\r\n\r\n"
+        ).encode("utf-8")
+        + jpeg
+        + f"\r\n--{boundary}--\r\n".encode("utf-8")
+    )
     request = urllib.request.Request(
         f"{BASE}/predict",
         data=body,
@@ -124,7 +127,9 @@ def _assert_cpu_torch(container_id: str) -> None:
         ["docker", "exec", container_id, "pip", "show", "torch"],
         text=True,
     )
-    if "+cpu" not in output and any(tag in output for tag in ("+cu124", "+cu121", "+cu118")):
+    if "+cpu" not in output and any(
+        tag in output for tag in ("+cu124", "+cu121", "+cu118")
+    ):
         raise AssertionError("torch appears to be CUDA build, expected CPU-only wheel")
 
 

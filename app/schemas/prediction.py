@@ -35,9 +35,7 @@ class PredictUrlRequest(BaseModel):
     )
     model_config = {
         "json_schema_extra": {
-            "examples": [
-                {"image_url": "https://example.com/golden-retriever.jpg"}
-            ]
+            "examples": [{"image_url": "https://example.com/golden-retriever.jpg"}]
         }
     }
 

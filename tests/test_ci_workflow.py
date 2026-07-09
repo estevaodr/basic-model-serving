@@ -27,9 +27,7 @@ def test_ci_workflow_file_exists():
 def test_d01_triggers_push_and_pr_to_main(workflow_text: str):
     """D-01: push to main and PRs targeting main."""
     assert re.search(r"push:\s*\n\s*branches:\s*\[main\]", workflow_text)
-    assert re.search(
-        r"pull_request:\s*\n\s*branches:\s*\[main\]", workflow_text
-    )
+    assert re.search(r"pull_request:\s*\n\s*branches:\s*\[main\]", workflow_text)
 
 
 def test_d03_concurrency_cancel_in_progress(workflow_text: str):
@@ -104,8 +102,11 @@ def test_d08_d09_ghcr_metadata_tags(workflow_text: str):
     assert "ghcr.io/${{ github.repository }}" in workflow_text
     assert "type=sha,prefix=,format=short" in workflow_text
     assert "type=raw,value=latest" in workflow_text
-    assert f"type=raw,value=${{{{ steps.version.outputs.version }}}}" in workflow_text
-    assert PROJECT_VERSION in workflow_text or "steps.version.outputs.version" in workflow_text
+    assert "type=raw,value=${{ steps.version.outputs.version }}" in workflow_text
+    assert (
+        PROJECT_VERSION in workflow_text
+        or "steps.version.outputs.version" in workflow_text
+    )
 
 
 def test_docker_buildx_and_login_actions(workflow_text: str):
