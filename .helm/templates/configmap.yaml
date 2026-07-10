@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-serving-config
+  labels:
+    app.kubernetes.io/name: model-serving
+data:
+  TORCH_NUM_THREADS: "2"
+  MAX_UPLOAD_BYTES: "1048576"
+  URL_TIMEOUT: "5.0"
+  LOG_LEVEL: "INFO"

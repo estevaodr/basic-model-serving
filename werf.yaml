@@ -1,0 +1,7 @@
+project: basic-model-serving
+configVersion: 1
+---
+# Optional — used only when NOT passing --without-images (D-07)
+image: api
+dockerfile: Dockerfile
+context: .
