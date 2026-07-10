@@ -153,3 +153,26 @@ def test_rendered_deployment_image_ghcr(rendered_manifests: str):
     """D-05: rendered image uses --set repository and tag."""
     assert "ghcr.io/estevaodr/basic-model-serving:testsha" in rendered_manifests
     assert "global.werf.images" not in rendered_manifests
+
+
+@skip_no_helm
+def test_rendered_deployment_image_local():
+    """D-06: local iteration path renders basic-model-serving:local."""
+    result = subprocess.run(
+        [
+            "helm",
+            "template",
+            "test",
+            str(HELM_DIR),
+            "--set",
+            "image.repository=basic-model-serving",
+            "--set",
+            "image.tag=local",
+            "--set",
+            "image.pullPolicy=IfNotPresent",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert 'image: "basic-model-serving:local"' in result.stdout
