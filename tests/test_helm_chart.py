@@ -12,9 +12,14 @@ import pytest
 WERF_PATH = Path("werf.yaml")
 HELM_DIR = Path(".helm")
 CHART_YAML = HELM_DIR / "Chart.yaml"
+CHART_LOCK = HELM_DIR / "Chart.lock"
 DEPLOYMENT_TEMPLATE = HELM_DIR / "templates" / "deployment.yaml"
 SERVICE_TEMPLATE = HELM_DIR / "templates" / "service.yaml"
 CONFIGMAP_TEMPLATE = HELM_DIR / "templates" / "configmap.yaml"
+SERVICEMONITOR_TEMPLATE = HELM_DIR / "templates" / "servicemonitor.yaml"
+GRAFANA_DASHBOARD_TEMPLATE = HELM_DIR / "templates" / "grafana-dashboard.yaml"
+DASHBOARD_JSON = HELM_DIR / "dashboards" / "model-serving-overview.json"
+DASHBOARD_SOURCE = Path("monitoring/grafana/dashboards/model-serving-overview.json")
 ENV_EXAMPLE_PATH = Path(".env.example")
 
 REQUIRED_ENV_KEYS = (
@@ -81,10 +86,66 @@ def test_werf_yaml_project_name():
     assert "project: basic-model-serving" in text
 
 
-def test_chart_no_kube_prometheus_stack_dependency():
-    """Monitoring subchart is 05-02 scope — app-only chart here."""
+def test_chart_has_kube_prometheus_dependency():
+    """D-01/D-02: kube-prometheus-stack bundled as Helm subchart."""
     text = CHART_YAML.read_text(encoding="utf-8")
-    assert "kube-prometheus-stack" not in text
+    assert "kube-prometheus-stack" in text, "D-01: Chart.yaml must list kube-prometheus-stack dependency"
+    assert "prometheus-community.github.io/helm-charts" in text, (
+        "D-02: dependency must come from official prometheus-community repo"
+    )
+
+
+def test_chart_lock_exists():
+    """D-02: Chart.lock pins subchart versions after helm dependency update."""
+    assert CHART_LOCK.is_file(), "D-02: .helm/Chart.lock must exist"
+    text = CHART_LOCK.read_text(encoding="utf-8")
+    assert "kube-prometheus-stack" in text, "D-02: Chart.lock must pin kube-prometheus-stack"
+
+
+def test_servicemonitor_template_exists():
+    """D-03: ServiceMonitor template required for Prometheus Operator scrape."""
+    assert SERVICEMONITOR_TEMPLATE.is_file(), "D-03: .helm/templates/servicemonitor.yaml must exist"
+
+
+def test_servicemonitor_release_label_uses_release_name():
+    """D-03: release label must use Release.Name, not hardcoded prometheus-stack alone."""
+    text = SERVICEMONITOR_TEMPLATE.read_text(encoding="utf-8")
+    assert "Release.Name" in text, "D-03: ServiceMonitor release label must template .Release.Name"
+    assert re.search(r"release:\s*\{\{\s*\.Release\.Name\s*\}\}", text), (
+        "D-03: release label must be {{ .Release.Name }}"
+    )
+    assert not re.search(r"release:\s*prometheus-stack\s*$", text, re.MULTILINE), (
+        "D-03: must not hardcode release: prometheus-stack without Release.Name"
+    )
+
+
+def test_servicemonitor_metrics_endpoint():
+    """D-03: ServiceMonitor scrapes /metrics on http port."""
+    text = SERVICEMONITOR_TEMPLATE.read_text(encoding="utf-8")
+    assert "path: /metrics" in text, "D-03: ServiceMonitor endpoint path must be /metrics"
+    assert re.search(r"port:\s*http", text), "D-03: ServiceMonitor endpoint port must be http"
+
+
+def test_grafana_dashboard_configmap_template():
+    """D-04: Grafana dashboard ConfigMap with sidecar label."""
+    assert GRAFANA_DASHBOARD_TEMPLATE.is_file(), (
+        "D-04: .helm/templates/grafana-dashboard.yaml must exist"
+    )
+    text = GRAFANA_DASHBOARD_TEMPLATE.read_text(encoding="utf-8")
+    assert "grafana_dashboard" in text, "D-04: dashboard ConfigMap must have grafana_dashboard label"
+
+
+def test_dashboard_json_embedded():
+    """D-04: Phase 3 dashboard JSON copied into chart dashboards/."""
+    assert DASHBOARD_JSON.is_file(), (
+        "D-04: .helm/dashboards/model-serving-overview.json must exist"
+    )
+    assert DASHBOARD_SOURCE.is_file(), "source dashboard JSON must exist"
+    source_size = DASHBOARD_SOURCE.stat().st_size
+    chart_size = DASHBOARD_JSON.stat().st_size
+    assert chart_size >= source_size * 0.95, (
+        f"D-04: chart dashboard size {chart_size} must be within 5% of source {source_size}"
+    )
 
 
 def test_deployment_template_replicas_and_rollout():
