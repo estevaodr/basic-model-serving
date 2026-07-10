@@ -10,6 +10,9 @@ from pathlib import Path
 import pytest
 
 WERF_PATH = Path("werf.yaml")
+README_PATH = Path("README.md")
+ROLLOUT_SCRIPT = Path("scripts/rollout-zero-downtime.sh")
+VALUES_LOCAL = Path(".helm/values-local.yaml")
 HELM_DIR = Path(".helm")
 CHART_YAML = HELM_DIR / "Chart.yaml"
 CHART_LOCK = HELM_DIR / "Chart.lock"
@@ -264,3 +267,35 @@ def test_rendered_grafana_dashboard_configmap(rendered_manifests: str):
     """D-04: full stack render includes dashboard ConfigMap for Grafana sidecar."""
     assert "name: model-serving-overview" in rendered_manifests
     assert "grafana_dashboard" in rendered_manifests
+
+
+def test_rollout_script_exists():
+    """D-19: rollout script hammers /health/ready via minikube service URL."""
+    assert ROLLOUT_SCRIPT.is_file(), "scripts/rollout-zero-downtime.sh must exist"
+    assert ROLLOUT_SCRIPT.stat().st_mode & 0o111, "rollout script must be executable"
+    text = ROLLOUT_SCRIPT.read_text(encoding="utf-8")
+    assert "/health/ready" in text
+    assert "minikube service model-serving" in text
+
+
+def test_readme_k8s_section():
+    """D-05/D-06/D-16/K8S-06: README documents minikube + werf converge paths."""
+    text = README_PATH.read_text(encoding="utf-8")
+    assert "Kubernetes" in text or "minikube + werf" in text
+    assert "minikube start --cpus=4 --memory=8192" in text, "D-16: minikube sizing"
+    assert "werf converge --without-images" in text, "D-05: GHCR SHA converge"
+    assert "minikube service model-serving" in text, "D-09: API access"
+    assert "minikube image load basic-model-serving:local" in text, "D-06: local iteration"
+    assert "rollout-zero-downtime" in text, "D-19: zero-downtime demo"
+    assert "does not deploy" in text.lower() or "does not run `werf converge`" in text, (
+        "CI manual deploy boundary"
+    )
+
+
+def test_values_local_exists():
+    """D-06: values-local.yaml overrides image for minikube image load path."""
+    assert VALUES_LOCAL.is_file(), ".helm/values-local.yaml must exist"
+    text = VALUES_LOCAL.read_text(encoding="utf-8")
+    assert "repository: basic-model-serving" in text
+    assert "tag: local" in text
+    assert "pullPolicy: IfNotPresent" in text
