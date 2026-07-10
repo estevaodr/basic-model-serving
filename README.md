@@ -195,3 +195,74 @@ GHCR packages default to **private**, even when the repository is public. After 
 4. Select **Public** and confirm
 
 This change is **irreversible**. Once public, anyone can pull the image without logging in to GHCR.
+
+## Kubernetes (minikube + werf)
+
+Deploy the API and bundled kube-prometheus-stack monitoring to local minikube with `werf converge`. CI builds and pushes images to GHCR only — CI does not deploy to Kubernetes and does not run `werf converge` (manual deploy from your laptop).
+
+### Prerequisites
+
+- [minikube](https://minikube.sigs.k8s.io/docs/start/) and [werf](https://werf.io/docs/v2/)
+- Docker (for `minikube image load`)
+- [uv](https://docs.astral.sh/uv/) (for `uv run docker-build`)
+
+Start minikube with enough resources for the API (2 replicas) plus kube-prometheus-stack (`minikube start --cpus=4 --memory=8192` minimum):
+
+```bash
+minikube start --driver=docker --cpus=4 --memory=8192 --disk-size=20g
+```
+
+### GHCR SHA deploy (production-like)
+
+After CI publishes an image for your commit, deploy that SHA with `werf converge --without-images`:
+
+```bash
+werf converge --env local --dev --without-images --set image.repository=ghcr.io/estevaodr/basic-model-serving --set image.tag=$(git rev-parse --short HEAD)
+```
+
+### Local iteration (fast inner loop)
+
+Build locally, load into minikube, and converge with the local tag override:
+
+```bash
+uv run docker-build
+minikube image load basic-model-serving:local
+werf converge --env local --dev --without-images -f .helm/values-local.yaml --set image.repository=basic-model-serving --set image.tag=local --set image.pullPolicy=IfNotPresent
+```
+
+### Access services
+
+```bash
+# API (NodePort via minikube tunnel helper)
+minikube service model-serving --url
+curl "$(minikube service model-serving --url | head -1)/health/ready"
+
+# Grafana (namespace matches werf release for --env local)
+minikube service prometheus-stack-grafana -n basic-model-serving-local --url
+```
+
+Log in to Grafana with `admin` / `admin`. Open the **Model Serving Overview** dashboard after sending a few `/predict` or `/health` requests.
+
+### Zero-downtime rollout demo
+
+With the stack already deployed via the local iteration path above:
+
+**Terminal 1** — hammer readiness during rollout:
+
+```bash
+./scripts/rollout-zero-downtime.sh
+```
+
+**Terminal 2** — rebuild, reload, and re-converge:
+
+```bash
+uv run docker-build
+minikube image load basic-model-serving:local
+werf converge --env local --dev --without-images -f .helm/values-local.yaml --set image.repository=basic-model-serving --set image.tag=local --set image.pullPolicy=IfNotPresent
+```
+
+Success: the curl loop shows no sustained `503` or `000` streak (brief blips during pod churn are acceptable). The Deployment uses 2 replicas with `maxUnavailable: 0` so at least one ready endpoint stays available.
+
+### CI boundary
+
+GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) builds and pushes to GHCR on `main` push only. It does **not** deploy to minikube or run werf — run `werf converge` manually from your laptop when you want to update the cluster.
