@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Helm vendored subcharts (Chart.lock pins versions)
+.helm/charts/

@@ -2,3 +2,18 @@ image:
   repository: ghcr.io/estevaodr/basic-model-serving
   tag: latest
   pullPolicy: IfNotPresent
+
+kube-prometheus-stack:
+  fullnameOverride: prometheus-stack
+  prometheus:
+    prometheusSpec:
+      retention: 7d
+      serviceMonitorSelectorNilUsesHelmValues: true
+  grafana:
+    service:
+      type: NodePort
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        labelValue: "1"
