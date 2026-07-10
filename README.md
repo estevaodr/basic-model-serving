@@ -212,6 +212,8 @@ Start minikube with enough resources for the API (2 replicas) plus kube-promethe
 minikube start --driver=docker --cpus=4 --memory=8192 --disk-size=20g
 ```
 
+`werf converge --env local` deploys into namespace **`basic-model-serving-local`**. Pass `-n basic-model-serving-local` to every `minikube service` command (or `source scripts/k8s-env.sh` and use the variables below).
+
 ### GHCR SHA deploy (production-like)
 
 After CI publishes an image for your commit, deploy that SHA with `werf converge --without-images`:
@@ -222,26 +224,34 @@ werf converge --env local --dev --without-images --set image.repository=ghcr.io/
 
 ### Local iteration (fast inner loop)
 
-Build locally, load into minikube, and converge with the local tag override:
+Build locally, **load into minikube** (required — the cluster cannot pull `basic-model-serving:local` from a registry), then converge:
 
 ```bash
-uv run docker-build
-minikube image load basic-model-serving:local
-werf converge --env local --dev --without-images -f .helm/values-local.yaml --set image.repository=basic-model-serving --set image.tag=local --set image.pullPolicy=IfNotPresent
+uv run docker-build-minikube
+# or: uv run docker-build && uv run docker-load-minikube
+werf converge --env local --dev --without-images --values .helm/values-local.yaml
+```
+
+Verify the image is in minikube before converging:
+
+```bash
+minikube image ls | grep basic-model-serving
 ```
 
 ### Access services
 
 ```bash
-# API (NodePort via minikube tunnel helper)
-minikube service model-serving --url
-curl "$(minikube service model-serving --url | head -1)/health/ready"
+source scripts/k8s-env.sh   # K8S_NAMESPACE, K8S_API_SERVICE, K8S_GRAFANA_SERVICE
 
-# Grafana (namespace matches werf release for --env local)
-minikube service prometheus-stack-grafana -n basic-model-serving-local --url
+# API (NodePort via minikube tunnel helper)
+minikube service "${K8S_API_SERVICE}" -n "${K8S_NAMESPACE}" --url
+curl "$(minikube service "${K8S_API_SERVICE}" -n "${K8S_NAMESPACE}" --url | head -1)/health/ready"
+
+# Grafana (subchart Service name is {release}-grafana, not prometheus-stack-grafana)
+minikube service "${K8S_GRAFANA_SERVICE}" -n "${K8S_NAMESPACE}" --url
 ```
 
-Log in to Grafana with `admin` / `admin`. Open the **Model Serving Overview** dashboard after sending a few `/predict` or `/health` requests.
+Log in to Grafana with `admin` / `prom-operator` (kube-prometheus-stack default). Open the **Model Serving Overview** dashboard after sending a few `/predict` or `/health` requests.
 
 ### Zero-downtime rollout demo
 
@@ -256,9 +266,8 @@ With the stack already deployed via the local iteration path above:
 **Terminal 2** — rebuild, reload, and re-converge:
 
 ```bash
-uv run docker-build
-minikube image load basic-model-serving:local
-werf converge --env local --dev --without-images -f .helm/values-local.yaml --set image.repository=basic-model-serving --set image.tag=local --set image.pullPolicy=IfNotPresent
+uv run docker-build-minikube
+werf converge --env local --dev --without-images --values .helm/values-local.yaml
 ```
 
 Success: the curl loop shows no sustained `503` or `000` streak (brief blips during pod churn are acceptable). The Deployment uses 2 replicas with `maxUnavailable: 0` so at least one ready endpoint stays available.

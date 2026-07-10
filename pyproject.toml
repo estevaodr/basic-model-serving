@@ -8,6 +8,8 @@ dependencies = []
 docker-build = "scripts.docker:build"
 docker-run = "scripts.docker:run"
 docker-smoke = "scripts.docker:smoke"
+docker-load-minikube = "scripts.docker:load_minikube"
+docker-build-minikube = "scripts.docker:build_and_load_minikube"
 
 [build-system]
 requires = ["hatchling"]

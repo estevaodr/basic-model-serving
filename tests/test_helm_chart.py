@@ -93,7 +93,9 @@ def test_werf_yaml_project_name():
 def test_chart_has_kube_prometheus_dependency():
     """D-01/D-02: kube-prometheus-stack bundled as Helm subchart."""
     text = CHART_YAML.read_text(encoding="utf-8")
-    assert "kube-prometheus-stack" in text, "D-01: Chart.yaml must list kube-prometheus-stack dependency"
+    assert "kube-prometheus-stack" in text, (
+        "D-01: Chart.yaml must list kube-prometheus-stack dependency"
+    )
     assert "prometheus-community.github.io/helm-charts" in text, (
         "D-02: dependency must come from official prometheus-community repo"
     )
@@ -103,18 +105,24 @@ def test_chart_lock_exists():
     """D-02: Chart.lock pins subchart versions after helm dependency update."""
     assert CHART_LOCK.is_file(), "D-02: .helm/Chart.lock must exist"
     text = CHART_LOCK.read_text(encoding="utf-8")
-    assert "kube-prometheus-stack" in text, "D-02: Chart.lock must pin kube-prometheus-stack"
+    assert "kube-prometheus-stack" in text, (
+        "D-02: Chart.lock must pin kube-prometheus-stack"
+    )
 
 
 def test_servicemonitor_template_exists():
     """D-03: ServiceMonitor template required for Prometheus Operator scrape."""
-    assert SERVICEMONITOR_TEMPLATE.is_file(), "D-03: .helm/templates/servicemonitor.yaml must exist"
+    assert SERVICEMONITOR_TEMPLATE.is_file(), (
+        "D-03: .helm/templates/servicemonitor.yaml must exist"
+    )
 
 
 def test_servicemonitor_release_label_uses_release_name():
     """D-03: release label must use Release.Name, not hardcoded prometheus-stack alone."""
     text = SERVICEMONITOR_TEMPLATE.read_text(encoding="utf-8")
-    assert "Release.Name" in text, "D-03: ServiceMonitor release label must template .Release.Name"
+    assert "Release.Name" in text, (
+        "D-03: ServiceMonitor release label must template .Release.Name"
+    )
     assert re.search(r"release:\s*\{\{\s*\.Release\.Name\s*\}\}", text), (
         "D-03: release label must be {{ .Release.Name }}"
     )
@@ -126,8 +134,12 @@ def test_servicemonitor_release_label_uses_release_name():
 def test_servicemonitor_metrics_endpoint():
     """D-03: ServiceMonitor scrapes /metrics on http port."""
     text = SERVICEMONITOR_TEMPLATE.read_text(encoding="utf-8")
-    assert "path: /metrics" in text, "D-03: ServiceMonitor endpoint path must be /metrics"
-    assert re.search(r"port:\s*http", text), "D-03: ServiceMonitor endpoint port must be http"
+    assert "path: /metrics" in text, (
+        "D-03: ServiceMonitor endpoint path must be /metrics"
+    )
+    assert re.search(r"port:\s*http", text), (
+        "D-03: ServiceMonitor endpoint port must be http"
+    )
 
 
 def test_grafana_dashboard_configmap_template():
@@ -136,7 +148,9 @@ def test_grafana_dashboard_configmap_template():
         "D-04: .helm/templates/grafana-dashboard.yaml must exist"
     )
     text = GRAFANA_DASHBOARD_TEMPLATE.read_text(encoding="utf-8")
-    assert "grafana_dashboard" in text, "D-04: dashboard ConfigMap must have grafana_dashboard label"
+    assert "grafana_dashboard" in text, (
+        "D-04: dashboard ConfigMap must have grafana_dashboard label"
+    )
 
 
 def test_dashboard_json_embedded():
@@ -246,13 +260,17 @@ def test_rendered_deployment_image_local():
 def test_values_kube_prometheus_retention():
     """D-02: prometheus retention 7d in subchart values."""
     text = VALUES_YAML.read_text(encoding="utf-8")
-    assert "retention: 7d" in text, "kube-prometheus-stack prometheus retention must be 7d"
+    assert "retention: 7d" in text, (
+        "kube-prometheus-stack prometheus retention must be 7d"
+    )
 
 
 def test_values_grafana_nodeport():
     """D-10: Grafana NodePort for minikube service access."""
     text = VALUES_YAML.read_text(encoding="utf-8")
-    assert "type: NodePort" in text, "kube-prometheus-stack grafana service must be NodePort"
+    assert "type: NodePort" in text, (
+        "kube-prometheus-stack grafana service must be NodePort"
+    )
 
 
 @skip_no_helm
@@ -275,7 +293,11 @@ def test_rollout_script_exists():
     assert ROLLOUT_SCRIPT.stat().st_mode & 0o111, "rollout script must be executable"
     text = ROLLOUT_SCRIPT.read_text(encoding="utf-8")
     assert "/health/ready" in text
-    assert "minikube service model-serving" in text
+    assert "minikube service" in text
+    assert "K8S_NAMESPACE" in text and "-n" in text
+    k8s_env = Path("scripts/k8s-env.sh")
+    assert k8s_env.is_file(), "scripts/k8s-env.sh must exist"
+    assert "model-serving" in k8s_env.read_text(encoding="utf-8")
 
 
 def test_readme_k8s_section():
@@ -284,12 +306,25 @@ def test_readme_k8s_section():
     assert "Kubernetes" in text or "minikube + werf" in text
     assert "minikube start --cpus=4 --memory=8192" in text, "D-16: minikube sizing"
     assert "werf converge --without-images" in text, "D-05: GHCR SHA converge"
-    assert "minikube service model-serving" in text, "D-09: API access"
-    assert "minikube image load basic-model-serving:local" in text, "D-06: local iteration"
-    assert "rollout-zero-downtime" in text, "D-19: zero-downtime demo"
-    assert "does not deploy" in text.lower() or "does not run `werf converge`" in text, (
-        "CI manual deploy boundary"
+    assert "K8S_API_SERVICE" in text and "model-serving" in text, "D-09: API access"
+    assert "basic-model-serving-local" in text, "werf --env local namespace"
+    assert (
+        "K8S_GRAFANA_SERVICE" in text or "basic-model-serving-local-grafana" in text
+    ), "D-10: bundled subchart Grafana service name"
+    assert (
+        "minikube image load basic-model-serving:local" in text
+        or "docker-load-minikube" in text
+    ), "D-06: local image must be loaded into minikube before converge"
+    assert "--values .helm/values-local.yaml" in text, (
+        "werf --values flag for local overrides"
     )
+    assert "-f .helm/values-local.yaml" not in text, (
+        "werf does not use helm -f shorthand"
+    )
+    assert "rollout-zero-downtime" in text, "D-19: zero-downtime demo"
+    assert (
+        "does not deploy" in text.lower() or "does not run `werf converge`" in text
+    ), "CI manual deploy boundary"
 
 
 def test_values_local_exists():
@@ -298,4 +333,4 @@ def test_values_local_exists():
     text = VALUES_LOCAL.read_text(encoding="utf-8")
     assert "repository: basic-model-serving" in text
     assert "tag: local" in text
-    assert "pullPolicy: IfNotPresent" in text
+    assert "pullPolicy: Never" in text
