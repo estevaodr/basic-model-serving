@@ -20,6 +20,7 @@ SERVICEMONITOR_TEMPLATE = HELM_DIR / "templates" / "servicemonitor.yaml"
 GRAFANA_DASHBOARD_TEMPLATE = HELM_DIR / "templates" / "grafana-dashboard.yaml"
 DASHBOARD_JSON = HELM_DIR / "dashboards" / "model-serving-overview.json"
 DASHBOARD_SOURCE = Path("monitoring/grafana/dashboards/model-serving-overview.json")
+VALUES_YAML = HELM_DIR / "values.yaml"
 ENV_EXAMPLE_PATH = Path(".env.example")
 
 REQUIRED_ENV_KEYS = (
@@ -237,3 +238,29 @@ def test_rendered_deployment_image_local():
         check=True,
     )
     assert 'image: "basic-model-serving:local"' in result.stdout
+
+
+def test_values_kube_prometheus_retention():
+    """D-02: prometheus retention 7d in subchart values."""
+    text = VALUES_YAML.read_text(encoding="utf-8")
+    assert "retention: 7d" in text, "kube-prometheus-stack prometheus retention must be 7d"
+
+
+def test_values_grafana_nodeport():
+    """D-10: Grafana NodePort for minikube service access."""
+    text = VALUES_YAML.read_text(encoding="utf-8")
+    assert "type: NodePort" in text, "kube-prometheus-stack grafana service must be NodePort"
+
+
+@skip_no_helm
+def test_rendered_servicemonitor_kind(rendered_manifests: str):
+    """K8S-06: full stack render includes ServiceMonitor for /metrics scrape."""
+    assert "kind: ServiceMonitor" in rendered_manifests
+    assert "path: /metrics" in rendered_manifests
+
+
+@skip_no_helm
+def test_rendered_grafana_dashboard_configmap(rendered_manifests: str):
+    """D-04: full stack render includes dashboard ConfigMap for Grafana sidecar."""
+    assert "name: model-serving-overview" in rendered_manifests
+    assert "grafana_dashboard" in rendered_manifests
