@@ -10,6 +10,7 @@ requires:
     provides: kube-prometheus-stack bundle, ServiceMonitor, Grafana dashboard provisioning
 provides:
   - scripts/rollout-zero-downtime.sh curl loop for /health/ready during rollout (D-19)
+  - scripts/k8s-env.sh namespace and service name defaults for minikube access
   - .helm/values-local.yaml local image tag overrides for minikube image load (D-06)
   - README Kubernetes section with GHCR SHA and local converge paths (D-05, D-16, D-20)
   - Extended documentation contract tests in tests/test_helm_chart.py
@@ -19,118 +20,121 @@ tech-stack:
   added: []
   patterns:
     - "TDD RED/GREEN for README and script contract tests before implementation"
-    - "minikube service model-serving --url drives rollout readiness hammer script"
-    - "values-local.yaml for IfNotPresent pull with minikube image load path"
+    - "minikube service with -n basic-model-serving-local drives rollout readiness hammer script"
+    - "values-local.yaml pullPolicy Never for minikube-loaded local tags"
 
 key-files:
   created:
     - scripts/rollout-zero-downtime.sh
+    - scripts/k8s-env.sh
     - .helm/values-local.yaml
   modified:
     - README.md
     - tests/test_helm_chart.py
+    - scripts/docker.py
+    - pyproject.toml
 
 key-decisions:
   - "Rollout script uses bash curl loop every 0.5s per RESEARCH Pattern 6"
   - "README documents both GHCR SHA and local iteration converge paths with CI manual boundary"
-  - "values-local.yaml mirrors D-06 image coordinates separate from default values.yaml"
+  - "Grafana on k8s uses kube-prometheus-stack default admin/prom-operator; compose stack stays admin/admin"
+  - "Bundled subchart Grafana Service is basic-model-serving-local-grafana, not prometheus-stack-grafana"
 
 patterns-established:
   - "Pattern: Documentation contract tests assert README substrings for reviewer-ready commands"
   - "Pattern: Zero-downtime demo uses two-terminal workflow (rollout script + re-converge)"
+  - "Pattern: scripts/k8s-env.sh centralizes werf namespace and service names for minikube"
 
-requirements-completed: []
+requirements-completed: [K8S-05]
 
-duration: 2min
+duration: 45min
 completed: 2026-07-10
 ---
 
 # Phase 5 Plan 03: Zero-Downtime Rollout Docs and Demo Summary
 
-**Rollout readiness hammer script, local values override, and README minikube+werf converge docs with contract test coverage — pending live minikube verification**
+**Rollout readiness hammer script, local values override, README minikube+werf converge docs, and human-verified live deploy on minikube**
 
 ## Performance
 
-- **Duration:** 2 min
+- **Duration:** ~45 min (including human verification)
 - **Started:** 2026-07-10T23:12:21Z
-- **Completed:** 2026-07-10T23:14:31Z (checkpoint — human verify pending)
-- **Tasks:** 1/3 complete (Task 2 blocked on minikube)
-- **Files modified:** 4
+- **Completed:** 2026-07-10T23:51:00Z
+- **Tasks:** 3/3 complete
+- **Files modified:** 8
 
 ## Accomplishments
 
 - Added TDD contract tests for rollout script, values-local.yaml, and README Kubernetes section
-- Created `scripts/rollout-zero-downtime.sh` — polls `/health/ready` via `minikube service model-serving --url` every 0.5s
-- Created `.helm/values-local.yaml` with `basic-model-serving:local` and `pullPolicy: IfNotPresent`
-- Added README **Kubernetes (minikube + werf)** section covering prerequisites, GHCR SHA converge, local iteration, service access, zero-downtime demo, and CI boundary
-- 37 helm + deploy workflow contract tests pass
+- Created `scripts/rollout-zero-downtime.sh` — polls `/health/ready` via `minikube service` with `-n basic-model-serving-local`
+- Created `scripts/k8s-env.sh` — namespace and Grafana/API service name defaults
+- Created `.helm/values-local.yaml` with `basic-model-serving:local` and `pullPolicy: Never`
+- Added `docker-build-minikube` / `docker-load-minikube` helpers with correct minikube image verification
+- Added README **Kubernetes (minikube + werf)** section with prerequisites, converge paths, service access, Grafana login, rollout demo
+- **Human verified:** API `/health/ready` and `POST /predict` return 200 via NodePort; user approved checkpoint
 
 ## Task Commits
 
-Each task was committed atomically:
-
 1. **Task 1: Rollout script, values-local, and README contract tests** — `6f6e753` (test RED), `c732fb7` (feat GREEN)
-2. **Task 2: Human verify werf converge and zero-downtime rollout on minikube** — *pending checkpoint*
-3. **Task 3: Finalize contract tests and CI-quality gate** — *blocked on Task 2 approval*
+2. **Task 2: Human verify werf converge and zero-downtime rollout on minikube** — approved 2026-07-10
+3. **Task 3: Finalize contract tests and CI-quality gate** — ruff + 79 pytest pass (post-approval fixes uncommitted)
 
 ## Files Created/Modified
 
 - `scripts/rollout-zero-downtime.sh` — Bash curl loop hammering `/health/ready` during rolling updates
+- `scripts/k8s-env.sh` — `K8S_NAMESPACE`, `K8S_API_SERVICE`, `K8S_GRAFANA_SERVICE` for minikube
 - `.helm/values-local.yaml` — Local image overrides for `minikube image load` converge path
-- `README.md` — Kubernetes section with minikube sizing, werf converge commands, access URLs, rollout demo
-- `tests/test_helm_chart.py` — `test_rollout_script_exists`, `test_readme_k8s_section`, `test_values_local_exists`
+- `README.md` — Kubernetes section with namespace, werf `--values`, Grafana credentials, access URLs
+- `scripts/docker.py` — `load_minikube()`, `build_and_load_minikube()`, fixed image name verification
+- `pyproject.toml` — `docker-load-minikube`, `docker-build-minikube` scripts
+- `tests/test_helm_chart.py` — rollout, README, values-local contract tests
 
 ## Decisions Made
 
-- Followed RESEARCH Pattern 6 shell translation for rollout script (0.5s poll interval, timestamp + HTTP code output)
-- README uses single-line `werf converge` commands so contract tests match required substrings
-- CI boundary stated as plain "CI does not deploy to Kubernetes" for test assertion compatibility
+- Followed RESEARCH Pattern 6 shell translation for rollout script (0.5s poll interval)
+- `werf converge` uses `--values .helm/values-local.yaml` (not Helm `-f`)
+- Grafana bundled under werf release → Service `basic-model-serving-local-grafana`
+- kube-prometheus-stack default credentials: `admin` / `prom-operator`
 
 ## Deviations from Plan
 
-None - plan executed exactly as written through Task 1. Task 2 paused at checkpoint because minikube cluster is not running on this host.
+- **Grafana service name:** Plan assumed `prometheus-stack-grafana` via `fullnameOverride`; actual bundled subchart Service is `{release}-grafana`. Documented and fixed in README/scripts.
+- **Namespace:** `minikube service` without `-n` fails; all docs/scripts now pass `-n basic-model-serving-local`.
+- **Local image pull:** `pullPolicy: Never` (not `IfNotPresent`) to prevent Docker Hub pull for local-only tags.
 
 ## Issues Encountered
 
-- **Minikube not available:** `minikube status` reports profile "minikube" not found. Live converge and zero-downtime rollout verification deferred to human checkpoint (Task 2).
+- Initial execution host had no minikube — deferred to human checkpoint (resolved by user on laptop).
+- `minikube service model-serving` defaults to `default` namespace — fixed with `k8s-env.sh`.
 
 ## User Setup Required
 
-None - no external service configuration required. Human must start minikube locally to complete Task 2 verification.
+None.
 
 ## Next Phase Readiness
 
-- Automated artifacts ready for live verification: rollout script, values-local.yaml, README commands
-- **Blocked:** K8S-05 human approval requires running minikube with steps in Task 2 checkpoint
-- Task 3 (ruff + full pytest marker suite) runs after user types "approved"
+- Phase 5 complete — all K8S-01 through K8S-06 and PERF-04 artifacts delivered
+- Phase 6 (Polish, Differentiators & README) unblocked
 
 ## Checkpoint Status
 
-**Type:** human-verify (blocking)
-**Blocked by:** No running minikube cluster on execution host
+**Type:** human-verify
+**Status:** APPROVED (2026-07-10)
 
-### Verification steps for user
-
-1. Start minikube: `minikube start --driver=docker --cpus=4 --memory=8192 --disk-size=20g`
-2. Build and load local image: `uv run docker-build` then `minikube image load basic-model-serving:local`
-3. Initial deploy: `werf converge --env local --dev --without-images -f .helm/values-local.yaml --set image.repository=basic-model-serving --set image.tag=local --set image.pullPolicy=IfNotPresent`
-4. Verify API: `minikube service model-serving --url` then `curl /health/ready` returns 200
-5. Verify Grafana: `minikube service prometheus-stack-grafana -n basic-model-serving-local --url` — Model Serving Overview dashboard visible
-6. Terminal 1: run `./scripts/rollout-zero-downtime.sh`
-7. Terminal 2: rebuild (`uv run docker-build`), `minikube image load basic-model-serving:local`, re-run werf converge with same local flags
-8. Confirm curl loop shows no sustained 503/000 streak
-
-**Resume signal:** Type "approved" or describe issues found during minikube verification
+User confirmed:
+- `/health/ready` stable (10 sequential curls)
+- `POST /predict` returns 200 via `http://192.168.49.2:32034`
 
 ## Self-Check: PASSED
 
 - FOUND: scripts/rollout-zero-downtime.sh
+- FOUND: scripts/k8s-env.sh
 - FOUND: .helm/values-local.yaml
 - FOUND: README.md
 - FOUND: tests/test_helm_chart.py
-- FOUND: 6f6e753
-- FOUND: c732fb7
+- pytest: 79 passed
+- ruff: check passed
 
 ---
 *Phase: 05-kubernetes-deployment-via-werf*
-*Completed: 2026-07-10 (checkpoint pending)*
+*Completed: 2026-07-10*
