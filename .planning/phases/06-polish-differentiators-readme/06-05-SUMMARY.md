@@ -61,10 +61,10 @@ completed: 2026-07-11
 
 Each task was committed atomically:
 
-1. **Task 1: Re-run tuned compose benchmark and capture evidence** - `TASK1_HASH` (docs)
-2. **Task 2: Update README and close VERIFICATION gaps** - `TASK2_HASH` (docs)
+1. **Task 1: Re-run tuned compose benchmark and capture evidence** - `7bedc1d` (docs)
+2. **Task 2: Update README and close VERIFICATION gaps** - `589be7b` (docs)
 
-**Plan metadata:** pending (docs commit)
+**Plan metadata:** `09d55ce` (docs: complete plan)
 
 ## Benchmark Run Log
 
@@ -201,8 +201,11 @@ None - hey already installed from 06-01.
 - Phase 6 gap closure complete for PERF-01/PERF-03
 - Human verification items (TL;DR timing, Grafana alert demo) remain in VERIFICATION.md
 
-## Self-Check: PENDING
+## Self-Check: PASSED
 
----
-*Phase: 06-polish-differentiators-readme*
-*Completed: 2026-07-11*
+- FOUND: .planning/phases/06-polish-differentiators-readme/06-05-SUMMARY.md
+- FOUND: README.md
+- FOUND: .planning/phases/06-polish-differentiators-readme/06-VERIFICATION.md
+- FOUND: 7bedc1d
+- FOUND: 589be7b
+- FOUND: 09d55ce (plan metadata)

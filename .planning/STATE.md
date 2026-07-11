@@ -2,19 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 6
-current_phase_name: Polish, Differentiators & README
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-07-11T01:02:22.630Z"
-last_activity: 2026-07-11
-last_activity_desc: Phase 6 execution started
+stopped_at: Completed 06-05-PLAN.md
+last_updated: "2026-07-11T01:06:01.756Z"
+last_activity: 2026-07-11 -- Phase 6 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 19
-  completed_plans: 18
-  percent: 83
+  completed_plans: 19
+  percent: 100
+current_phase: 6
+current_phase_name: Polish, Differentiators & README
 ---
 
 # Project State
@@ -29,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 ## Current Position
 
 Phase: 6 (Polish, Differentiators & README) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-11 -- Phase 6 execution started
 
@@ -69,6 +68,7 @@ Progress: [████████░░] 83%
 | Phase 05-kubernetes-deployment-via-werf P01 | - | - | - |
 | Phase 05-kubernetes-deployment-via-werf P02 | - | - | - |
 | Phase 05-kubernetes-deployment-via-werf P03 | 45 | 3 tasks | 8 files |
+| Phase 06-polish-differentiators-readme P05 | 8min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -83,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Local iteration via `uv run docker-build-minikube` + `pullPolicy: Never` in values-local.yaml
 - [Phase ?]: README documents anonymous GHCR pull after one-time Public visibility; no PAT for routine pulls (T-04-07)
 - [Phase ?]: CI-04 warm-cache acceptance: main run 29043440865 completed in ~4m25s
+- [Phase 06]: PERF-01 closed via D-09 override after post-tuning p95 5001 ms
+- [Phase 06]: PERF-03 closed by normalized peak CPU 25.8% after 2-core compose limit
 
 ### Pending Todos
 
@@ -111,6 +113,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-11T01:02:22.620Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-polish-differentiators-readme/06-CONTEXT.md
+Last session: 2026-07-11T01:06:01.748Z
+Stopped at: Completed 06-05-PLAN.md
+Resume file: None
