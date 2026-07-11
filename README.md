@@ -245,6 +245,22 @@ docker compose restart app
 5. Restart the API: `docker compose start app`
 6. Wait for `/health/ready`, then ~60 seconds — alert returns to **Normal**.
 
+### Alert demo (High Latency)
+
+1. With the stack running, open Grafana → **Alerting** → **Alert rules** and confirm **High Latency** is listed alongside **Service Down**.
+2. Start sustained load in the background:
+
+   ```bash
+   ./scripts/load-test.sh &
+   # or: hey -m POST -c 10 -z 120s -D /path/to/multipart-body.bin http://localhost:8000/predict
+   ```
+
+3. Mid-run, stop the API: `docker compose stop app`
+4. Wait ~2 minutes (rule threshold: p95 &gt; 100 ms for 2m).
+5. Confirm **High Latency** transitions to **Firing** in Grafana Alerting (**Service Down** may also fire).
+6. Restart the API: `docker compose start app`
+7. Wait for `/health/ready`, then ~2 minutes — **High Latency** returns to **Normal**.
+
 ### Reload monitoring config
 
 After editing files under `monitoring/`, restart the affected service:
