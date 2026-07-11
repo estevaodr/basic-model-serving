@@ -2,6 +2,102 @@
 
 Portfolio-grade ResNet-50 image classification API with health probes, Prometheus metrics, and structured logging.
 
+## TL;DR Quickstart
+
+Get from clone to a running compose stack in under five minutes.
+
+**Prerequisites:** [Docker](https://docs.docker.com/get-docker/), [uv](https://docs.astral.sh/uv/), and [hey](https://github.com/rakyll/hey) (`go install github.com/rakyll/hey@latest`)
+
+```bash
+git clone https://github.com/estevaodr/basic-model-serving.git
+cd basic-model-serving
+uv run docker-build
+docker compose up
+```
+
+In another terminal, send a prediction and open Grafana:
+
+```bash
+curl -s -X POST http://localhost:8000/predict \
+  -F "file=@tests/fixtures/sample.jpg" | jq .
+# Grafana dashboards + alerting: http://localhost:3000 (admin / admin)
+```
+
+**Next steps:** [Docker](#docker) (single-container run), [Local observability stack](#local-observability-stack) (traffic + alert demos), [Kubernetes](#kubernetes-minikube--werf) (advanced minikube deploy).
+
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph reviewer["Reviewer / Developer"]
+    CLI["curl / hey"]
+    Browser["Browser — /docs, Grafana"]
+  end
+
+  subgraph compose["Docker Compose (canonical local)"]
+    APP["FastAPI + ResNet-50<br/>:8000"]
+    PROM["Prometheus<br/>:9090"]
+    GRAF["Grafana<br/>:3000"]
+    APP -->|"/metrics scrape"| PROM
+    GRAF -->|"PromQL queries"| PROM
+  end
+
+  subgraph cicd["GitHub Actions"]
+    CI["ci.yml — lint + test"]
+    DEPLOY["deploy.yml — build + push"]
+    DEPLOY --> GHCR["GHCR image"]
+  end
+
+  subgraph k8s["minikube (advanced manual)"]
+    WERF["werf converge"]
+    KAPP["API Deployment + Service"]
+    KMON["kube-prometheus-stack"]
+    WERF --> KAPP
+    WERF --> KMON
+    GHCR -.->|"optional SHA pull"| WERF
+  end
+
+  CLI -->|"POST /predict"| APP
+  Browser --> APP
+  Browser --> GRAF
+  Browser --> PROM
+```
+
+## Design Decisions
+
+### werf for local Kubernetes deploys
+
+[werf](https://werf.io/) bundles the API Helm chart and kube-prometheus-stack into a single `werf converge` — one command deploys app + in-cluster monitoring. The user chose werf over vanilla `kubectl apply` / standalone Helm for a portfolio-grade deploy workflow. See [Kubernetes (minikube + werf)](#kubernetes-minikube--werf).
+
+### CI builds and pushes only — manual deploy boundary
+
+GitHub Actions ([`ci.yml`](.github/workflows/ci.yml), [`deploy.yml`](.github/workflows/deploy.yml)) lint, test, and publish images to GHCR on `main` push. Hosted runners cannot reach a local minikube cluster, so **CI does not run `werf converge`**. Deployment is a deliberate manual step from your laptop. See [CI/CD](#cicd).
+
+### Sync `def` `/predict` handler
+
+The `/predict` route uses a plain synchronous `def` handler (not `async def`). PyTorch inference runs on the default thread pool, blocking the event loop during each request. This keeps the inference path simple for a single-worker Uvicorn process; under high concurrency, latency rises as requests queue. See [Performance Results](#performance-results) and `TORCH_NUM_THREADS` tuning below.
+
+### ResNet-50 over ResNet-18
+
+ResNet-50 (ImageNet weights) trades a small latency cost for stronger top-5 accuracy and a standard ImageNet baseline. ResNet-18 would be faster but less representative of a production classification service.
+
+### Compose hand-rolled monitoring vs kube-prometheus-stack in K8s
+
+Local development uses lightweight hand-rolled Prometheus + Grafana in `docker-compose.yml` for fast iteration. Kubernetes deploys bundle [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) via werf for Operator-based ServiceMonitor discovery and production-style in-cluster monitoring — same **Model Serving Overview** dashboard, different scrape topology.
+
+## Limitations
+
+- **No API authentication** — `/predict` is open on localhost; add API keys or OAuth behind a gateway for any shared deployment.
+- **No horizontal autoscaling (HPA)** — fixed replica count and CPU limits; add HPA on CPU or custom metrics when moving to cloud K8s.
+- **Local minikube only** — no EKS/GKE/AKS path in this milestone; cloud would need registry auth, ingress, and cost controls.
+- **No GPU inference** — CPU-only PyTorch; GPU would need CUDA base images, device plugins, and different resource limits.
+- **No request batching** — one image per request; batching or a dedicated inference server (Triton, TorchServe) would improve throughput under load.
+- **No rate limiting** — sustained `hey` load can saturate CPU; add middleware or ingress rate limits before exposing publicly.
+- **Grafana default credentials** — compose uses `admin`/`admin`, K8s uses `admin`/`prom-operator`; rotate secrets and disable defaults in production (v2 OBS hardening).
+- **CI does not auto-deploy** — merge to `main` publishes GHCR tags only; run `werf converge` manually to update minikube.
+
+---
+
 ## Docker
 
 **Prerequisites:** Docker Engine, [uv](https://docs.astral.sh/uv/) (recommended)
