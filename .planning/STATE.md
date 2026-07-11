@@ -2,16 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: "Phase 5 shipped — PR #8"
-stopped_at: Phase 5 complete — ready for Phase 6
-last_updated: "2026-07-10T23:55:09.833Z"
-last_activity: 2026-07-10
+status: "Phase 6 shipped — PR #9"
+stopped_at: Completed 06-05-PLAN.md
+last_updated: "2026-07-11T01:13:21.760Z"
+last_activity: 2026-07-11
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 14
-  completed_plans: 12
-  percent: 83
+  completed_phases: 6
+  total_plans: 19
+  completed_plans: 19
+  percent: 100
+current_phase: 6
+current_phase_name: Polish, Differentiators & README
 ---
 
 # Project State
@@ -25,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 
 ## Current Position
 
-Phase: 6 (Polish, Differentiators & README) — NOT STARTED
-Plan: TBD
-Status: Phase 5 shipped — PR #8
-Last activity: 2026-07-10
+Phase: 06
+Plan: Not started
+Status: Phase 6 shipped — PR #9
+Last activity: 2026-07-11
 
 Progress: [████████░░] 83%
 
@@ -36,7 +38,7 @@ Progress: [████████░░] 83%
 
 **Velocity:**
 
-- Total plans completed: 12
+- Total plans completed: 17
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -48,6 +50,7 @@ Progress: [████████░░] 83%
 | 03 | 3 | - | - |
 | 4 | 2 | - | - |
 | 5 | 3 | - | - |
+| 06 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -66,6 +69,7 @@ Progress: [████████░░] 83%
 | Phase 05-kubernetes-deployment-via-werf P01 | - | - | - |
 | Phase 05-kubernetes-deployment-via-werf P02 | - | - | - |
 | Phase 05-kubernetes-deployment-via-werf P03 | 45 | 3 tasks | 8 files |
+| Phase 06-polish-differentiators-readme P05 | 8min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -80,6 +84,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Local iteration via `uv run docker-build-minikube` + `pullPolicy: Never` in values-local.yaml
 - [Phase ?]: README documents anonymous GHCR pull after one-time Public visibility; no PAT for routine pulls (T-04-07)
 - [Phase ?]: CI-04 warm-cache acceptance: main run 29043440865 completed in ~4m25s
+- [Phase 06]: PERF-01 closed via D-09 override after post-tuning p95 5001 ms
+- [Phase 06]: PERF-03 closed by normalized peak CPU 25.8% after 2-core compose limit
 
 ### Pending Todos
 
@@ -108,6 +114,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T23:51:00.000Z
-Stopped at: Phase 5 complete — ready for Phase 6
-Resume file: .planning/ROADMAP.md (Phase 6 section)
+Last session: 2026-07-11T01:06:01.748Z
+Stopped at: Completed 06-05-PLAN.md
+Resume file: None
