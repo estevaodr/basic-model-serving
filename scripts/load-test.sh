@@ -90,8 +90,16 @@ PEAK_CPU="0"
 if [[ -s "${CPU_SAMPLES_FILE}" ]]; then
   PEAK_CPU="$(sort -n "${CPU_SAMPLES_FILE}" | tail -1)"
 fi
+
+HOST_CORES="$(nproc 2>/dev/null || echo 1)"
+if [[ -z "${HOST_CORES}" || "${HOST_CORES}" -lt 1 ]]; then
+  HOST_CORES=1
+fi
+NORMALIZED_CPU="$(awk -v peak="${PEAK_CPU}" -v cores="${HOST_CORES}" 'BEGIN { printf "%.1f", peak / cores }')"
+
 echo ""
-echo "Peak CPU (app container): ${PEAK_CPU}%"
+echo "Peak CPU (app container, raw): ${PEAK_CPU}%"
+echo "Peak CPU (normalized to host cores): ${NORMALIZED_CPU}%"
 
 if [[ "${HEY_EXIT}" -ne 0 ]]; then
   echo "error: hey exited with status ${HEY_EXIT}" >&2
@@ -103,18 +111,18 @@ if ! grep -q 'Latency distribution' <<< "${HEY_OUTPUT}"; then
   exit 1
 fi
 
+TOTAL_REQUESTS=0
 NON_200_COUNT=0
 while IFS= read -r status_line; do
   if [[ "${status_line}" =~ \[([0-9]+)\][[:space:]]+([0-9]+)[[:space:]]+responses ]]; then
     code="${BASH_REMATCH[1]}"
     count="${BASH_REMATCH[2]}"
+    TOTAL_REQUESTS=$((TOTAL_REQUESTS + count))
     if [[ "${code}" != "200" ]]; then
       NON_200_COUNT=$((NON_200_COUNT + count))
     fi
   fi
 done < <(grep -E '^\s+\[[0-9]+\]' <<< "${HEY_OUTPUT}" || true)
-
-TOTAL_REQUESTS="$(grep -E '^Total:' <<< "${HEY_OUTPUT}" | awk '{print $2}' || true)"
 if [[ -n "${TOTAL_REQUESTS}" && "${TOTAL_REQUESTS}" -gt 0 && "${NON_200_COUNT}" -gt $((TOTAL_REQUESTS / 2)) ]]; then
   echo "error: non-200 responses (${NON_200_COUNT}/${TOTAL_REQUESTS}) exceed majority threshold" >&2
   exit 1
