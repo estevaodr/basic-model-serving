@@ -19,8 +19,51 @@ BASE = f"http://{HOST}:{PORT}"
 MAX_IMAGE_BYTES = 2_000_000_000
 
 
+def _minikube_has_image(loaded_refs: set[str], image: str = IMAGE) -> bool:
+    """Match short tags and docker.io/library/... names minikube uses after image load."""
+    if image in loaded_refs:
+        return True
+    name, _, tag = image.partition(":")
+    suffix = f"{name}:{tag}"
+    return any(ref == image or ref.endswith(f"/{suffix}") for ref in loaded_refs)
+
+
 def build() -> None:
     subprocess.run(["docker", "build", "-t", IMAGE, "."], check=True)
+
+
+def load_minikube() -> None:
+    """Load the local image into minikube's container runtime (required before werf converge)."""
+    subprocess.run(["minikube", "status"], check=True)
+    subprocess.run(["minikube", "image", "load", IMAGE], check=True)
+    result = subprocess.run(
+        [
+            "minikube",
+            "image",
+            "ls",
+            "--format",
+            "{{.Repository}}:{{.Tag}}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    loaded = {line.strip() for line in result.stdout.splitlines() if line.strip()}
+    if not _minikube_has_image(loaded):
+        print(
+            f"ERROR: {IMAGE} not found in minikube after load "
+            f"(checked: {sorted(loaded)[:5]}...). "
+            f"Run `uv run docker-build` first, then retry.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    matched = next(ref for ref in loaded if _minikube_has_image({ref}))
+    print(f"Loaded {IMAGE} into minikube as {matched}")
+
+
+def build_and_load_minikube() -> None:
+    build()
+    load_minikube()
 
 
 def run() -> str:

@@ -30,6 +30,15 @@ jobs:
             --index-url https://download.pytorch.org/whl/cpu
           uv pip install -r requirements.txt -r requirements-dev.txt
 
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.17.3
+
+      - name: Build Helm chart dependencies
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm dependency build .helm
+
       - name: Lint
         run: |
           source .venv/bin/activate

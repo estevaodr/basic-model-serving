@@ -1,0 +1,5 @@
+image:
+  repository: basic-model-serving
+  tag: local
+  # Never: use only images loaded into minikube (minikube image load). Avoids Docker Hub pull for local-only tags.
+  pullPolicy: Never

@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Containerization** - Multi-stage, non-root, <2GB Docker image configured via env vars
 - [x] **Phase 3: Local Dev Stack & Dashboards** - `docker-compose` stack with live Grafana dashboards, provisioned as code (completed 2026-07-08)
 - [x] **Phase 4: CI/CD Pipeline** - GitHub Actions lint/test/build/push to GHCR on every push to `main` (completed 2026-07-09)
-- [ ] **Phase 5: Kubernetes Deployment (via werf)** - Orchestrated, self-healing, zero-downtime deployment to minikube
+- [x] **Phase 5: Kubernetes Deployment (via werf)** - Orchestrated, self-healing, zero-downtime deployment to minikube (completed 2026-07-10)
 - [ ] **Phase 6: Polish, Differentiators & README** - Load-test proof, SLO alert demo, and reviewer-ready documentation
 
 ## Phase Details
@@ -144,7 +144,20 @@ Plans:
   3. Rolling out a new image version causes zero dropped requests
   4. PyTorch's thread count is explicitly set to match the pod's CPU limit, avoiding cgroup throttling under load
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+**Wave 1**
+
+- [x] 05-01-PLAN.md — werf converge deploys API to minikube: Deployment, Service, ConfigMap, probes, resources (K8S-01–04, K8S-06, PERF-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 05-02-PLAN.md — Bundle kube-prometheus-stack: ServiceMonitor, Grafana dashboard, Chart.lock (D-01–04, D-10)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 05-03-PLAN.md — Zero-downtime rollout script, values-local, README k8s docs + human verify (K8S-05)
 
 ### Phase 6: Polish, Differentiators & README
 
@@ -174,5 +187,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Containerization | 0/2 | Not started | - |
 | 3. Local Dev Stack & Dashboards | 3/3 | Complete    | 2026-07-09 |
 | 4. CI/CD Pipeline | 2/2 | Complete    | 2026-07-09 |
-| 5. Kubernetes Deployment (via werf) | 0/TBD | Not started | - |
+| 5. Kubernetes Deployment (via werf) | 3/3 | Complete    | 2026-07-10 |
 | 6. Polish, Differentiators & README | 0/TBD | Not started | - |
