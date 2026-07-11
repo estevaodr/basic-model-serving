@@ -405,7 +405,7 @@ Place file in `monitoring/grafana/provisioning/alerting/` (folder name must be *
 ### Anti-Patterns to Avoid
 
 - **Using hey `-d` with urlencoded body for `/predict`:** API expects multipart file field; plain POST body returns 4xx.
-- **Stopping API to demo High Latency:** Triggers **Service Down** (`up{job="app"}`) first; histogram rates go stale with no scrape — see Pitfall 3. Prefer sustained hey load while API stays up, or document fallback if SLO never exceeded.
+- **Stopping API to demo High Latency:** May trigger **Service Down** (`up{job="app"}`) alongside or instead of High Latency; histogram rates go stale with no scrape — see Pitfall 3. D-13 canonical demo is stop-app mid-hey; document sustained-load Path A fallback honestly if hardware validation shows only Service Down fires.
 - **PromQL missing `le` in `sum by`:** Invalid quantile aggregation [CITED: prometheus.io/docs/practices/histograms/].
 - **Rewriting README CI/K8s sections:** Violates D-17/D-18; prepend only.
 - **Adding contact points to alert YAML:** Violates D-14 and `FORBIDDEN_CONTACT_TERMS` in contract test.
@@ -451,10 +451,10 @@ Place file in `monitoring/grafana/provisioning/alerting/` (folder name must be *
 
 **Why it happens:** D-13 mirrors downtime demo style; different alert signals.
 
-**How to avoid (recommended for planner):**
-1. **Primary demo:** Run `hey -c 10 -z 3m` (or higher `-c 20–30` on fast CPUs) while API stays healthy until p95 > 100ms for 2m.
-2. **If SLO never exceeded on host:** Document alert rule + show Normal state, with note that firing requires load or slower hardware (honest D-09).
-3. **If user insists on stop-container demo:** Clarify that Service Down is expected; High Latency demo may need **`docker pause app`** (container running but frozen) to accumulate slow/time-out requests while scrape still partially works — test manually before README promises.
+**How to avoid (per D-13, resolved in Open Questions Q1):**
+1. **Canonical demo (Path B):** Run `hey` load → `docker compose stop app` mid-run → observe **High Latency** Firing → `docker compose start app` → wait for **Normal** after recovery (matches downtime demo style).
+2. **Honest fallback (Path A):** If hardware validation shows only **Service Down** fires during stop-app (histogram rates go stale), document sustained `hey -c 20 -z 3m` load while API stays healthy as fallback — do not claim Path B fired High Latency when it did not.
+3. **If SLO never exceeded on host:** Document alert rule + show Normal state, with note that firing requires load or slower hardware (honest D-09).
 
 **Warning signs:** Only Service Down fires during stop-app demo.
 
@@ -560,24 +560,22 @@ def test_latency_alert_yaml_contract():
 |---|-------|---------|---------------|
 | A1 | `hey` installable via `go install github.com/rakyll/hey@latest` on reviewer Linux | Standard Stack | Reviewer cannot reproduce benchmark |
 | A2 | Shell-built multipart body works with FastAPI `UploadFile` field name `file` | Pattern 1 | hey requests rejected |
-| A3 | D-13 stop-app demo reliably fires **High Latency** (not just Service Down) | Pitfall 3 | README demo steps fail; needs pause/load alternative |
+| A3 | D-13 stop-app demo fires **High Latency** on target hardware (Path B canonical; Path A fallback if only Service Down fires) | Pitfall 3 | Human-verify in 06-03 validates path before README lock; honest fallback documented |
 | A4 | `-c 10` on typical dev CPU keeps p95 <100ms | PERF-01 | Must publish over-SLO numbers per D-09 |
 | A5 | Peak `docker stats` CPU during 60s run satisfies PERF-03 "<70% under normal load" | Pattern 3 | Interpretation of "normal load" ambiguous |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **High Latency demo mechanics (D-13)**
-   - What we know: User wants hey → stop API → fire → resolve, matching downtime demo style.
-   - What's unclear: Stopping API primarily triggers Service Down; histogram p95 may not fire.
-   - Recommendation: Plan primary demo as sustained hey load; add human-verify checkpoint to validate stop/pause behavior on target hardware before locking README steps.
+1. **High Latency demo mechanics (D-13)** — **RESOLVED**
+   - **Decision:** Path B is **canonical** per locked D-13: run `hey` load → `docker compose stop app` mid-run → **High Latency** transitions to **Firing** → restart API → alert **resolves** to **Normal** (same tangible demo style as Service Down).
+   - **Fallback:** If human-verify on target hardware shows only **Service Down** fires (histogram p95 goes stale when scrape stops), document **Path A** (sustained `hey` load while API stays healthy) as honest fallback — do not claim Path B fired High Latency when it did not.
+   - **Validation gate:** 06-03 Task 3 human-verify tries Path B first, then Path A only if High Latency does not fire.
 
-2. **`scripts/load-test.sh` vs documented raw commands**
-   - What we know: Discretion allows either.
-   - Recommendation: Script for repeatability + README shows both script and underlying hey command.
+2. **`scripts/load-test.sh` vs documented raw commands** — **RESOLVED**
+   - **Decision:** Ship `scripts/load-test.sh` for repeatability; README documents both `./scripts/load-test.sh` and the underlying `hey -c 10 -z 60s` multipart command (RESEARCH Pattern 1).
 
-3. **Contract test for latency.yml**
-   - What we know: Discretion allows mirroring `test_grafana_alerting.py`.
-   - Recommendation: **Yes** — low cost, prevents alert regressions (same as Phase 3).
+3. **Contract test for latency.yml** — **RESOLVED**
+   - **Decision:** **Yes** — extend `tests/test_grafana_alerting.py` with latency alert contract tests (mirror Phase 3 downtime pattern; low cost, prevents PromQL drift).
 
 ## Environment Availability
 
@@ -635,7 +633,7 @@ def test_latency_alert_yaml_contract():
 - `.planning/research/FEATURES.md` — load-test and SLO differentiator rationale
 
 ### Tertiary (LOW confidence — validate during execution)
-- D-13 stop-app demo firing High Latency specifically (see Assumption A3)
+- D-13 Path B stop-app demo firing High Latency on specific hardware (see Assumption A3; Path A fallback documented if only Service Down fires)
 
 ## Metadata
 
