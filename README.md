@@ -69,16 +69,19 @@ Benchmark run against the **Docker Compose stack** (`docker compose up`) with `h
 
 | Metric | Value |
 |--------|------:|
-| p50 latency | 671 ms |
-| p95 latency | 798 ms |
-| p99 latency | 860 ms |
-| RPS | 14.83 |
-| Error rate | 0.0% (895/895 HTTP 200) |
-| Peak CPU (app container) | 740.17% |
+| p50 latency | 4266 ms |
+| p95 latency | 5001 ms |
+| p99 latency | 5383 ms |
+| RPS | 2.50 |
+| Error rate | 0.0% (156/156 HTTP 200) |
+| Peak CPU (app container, raw) | 206.63% |
+| Peak CPU (normalized to host cores) | 25.8% |
 
-> **SLO note:** Portfolio target is p95 &lt; 100 ms. On the benchmark host below, p95 was **798 ms** under 10 concurrent workers — environment-specific. Tune `TORCH_NUM_THREADS` (see [Docker configuration](#configuration)), container CPU limits, and concurrency before drawing production conclusions. The sync `/predict` handler and ResNet-50 choice (see [Design Decisions](#design-decisions)) explain elevated latency under parallel load.
+> **SLO note:** Portfolio target is p95 &lt; 100 ms. After compose tuning (`cpus: 2.0`, `TORCH_NUM_THREADS=2`, applied in 06-04/06-05), p95 was **5001 ms** under 10 concurrent workers on the host below — still far above target. The 2-core limit reduced CPU saturation (normalized peak **25.8%** vs **92.5%** pre-tuning) but increased queueing latency because the sync `/predict` handler and ResNet-50 inference cannot serve 10 parallel workers within 2 threads. This is environment-specific honest evidence (D-09), not a production SLO claim.
 
-**Run date (UTC):** 2026-07-11T00:29:34Z
+**Tuning config:** `docker-compose.yml` sets `cpus: "2.0"`, `mem_limit: 2g`, and `TORCH_NUM_THREADS=${TORCH_NUM_THREADS:-2}` on the `app` service (aligned with K8s PERF-04 limits).
+
+**Run date (UTC):** 2026-07-11T01:03:21Z
 
 **Host specs:**
 
@@ -108,7 +111,7 @@ hey -m POST -c 10 -z 60s \
   http://localhost:8000/predict
 ```
 
-Peak CPU from `docker stats` is per-container and can exceed 100% on multi-core hosts (740% ≈ 7.4 cores busy on an 8-core machine).
+Peak CPU from `docker stats` is per-container and can exceed 100% on multi-core hosts (raw % sums across allocated cores). **PERF-03 evaluation uses normalized peak** (`raw / nproc`): pre-tuning raw 740.17% on 8 cores ≈ 92.5% normalized; post-tuning raw 206.63% ≈ **25.8%** normalized with the 2-core compose limit.
 
 ## Design Decisions
 
