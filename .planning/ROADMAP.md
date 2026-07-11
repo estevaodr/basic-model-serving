@@ -172,7 +172,7 @@ Plans:
   3. The README documents key design decisions (including werf and the manual-deploy CI/CD boundary) and an honest limitations / "what I'd improve" section
   4. The Grafana dashboard has a working SLO alert that can be demonstrated firing and resolving
 
-**Plans**: 3 plans
+**Plans**: 5 plans (3 initial + 2 gap closure)
 
 Plans:
 **Wave 1** *(06-01 and 06-02 run in parallel)*
@@ -183,6 +183,16 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 06-03-PLAN.md — README reviewer funnel, performance table, alert demo + human verify (DOC-01–06, D-06–D-22)
+
+**Gap closure** *(PERF-01, PERF-03 verification failures)*
+
+**Wave 1**
+
+- [ ] 06-04-PLAN.md — Fix load-test parsing, normalized CPU reporting, compose tuning (PERF-01, PERF-03)
+
+**Wave 2** *(blocked on 06-04)*
+
+- [ ] 06-05-PLAN.md — Re-benchmark, update README, close VERIFICATION gaps (PERF-01, PERF-03, D-09)
 
 ## Progress
 
@@ -197,4 +207,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Local Dev Stack & Dashboards | 3/3 | Complete    | 2026-07-09 |
 | 4. CI/CD Pipeline | 2/2 | Complete    | 2026-07-09 |
 | 5. Kubernetes Deployment (via werf) | 3/3 | Complete    | 2026-07-10 |
-| 6. Polish, Differentiators & README | 3/3 | Complete   | 2026-07-11 |
+| 6. Polish, Differentiators & README | 3/5 | Gap closure | 2026-07-11 |
