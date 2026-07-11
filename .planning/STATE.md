@@ -95,7 +95,7 @@ Recent decisions affecting current work:
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 260709-n8y | Split CI into ci.yml (lint+test) and deploy.yml (docker build+push) | 2026-07-09 | 76adf5a | Verified | [260709-n8y-split-ci-into-ci-yml-lint-test-and-deplo](./quick/260709-n8y-split-ci-into-ci-yml-lint-test-and-deplo/) |
-| 260710-fix-ci-helm-deps | Fix CI helm template tests — add helm dependency build step | 2026-07-11 | pending | Verified | [260710-fix-ci-helm-deps](./quick/260710-fix-ci-helm-deps/) |
+| 260710-fix-ci-helm-deps | Fix CI helm template tests — add helm dependency build step | 2026-07-11 | bb78cef | Verified | [260710-fix-ci-helm-deps](./quick/260710-fix-ci-helm-deps/) |
 
 ## Deferred Items
 
