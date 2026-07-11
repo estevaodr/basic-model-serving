@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Local Dev Stack & Dashboards** - `docker-compose` stack with live Grafana dashboards, provisioned as code (completed 2026-07-08)
 - [x] **Phase 4: CI/CD Pipeline** - GitHub Actions lint/test/build/push to GHCR on every push to `main` (completed 2026-07-09)
 - [x] **Phase 5: Kubernetes Deployment (via werf)** - Orchestrated, self-healing, zero-downtime deployment to minikube (completed 2026-07-10)
-- [ ] **Phase 6: Polish, Differentiators & README** - Load-test proof, SLO alert demo, and reviewer-ready documentation
+- [x] **Phase 6: Polish, Differentiators & README** - Load-test proof, SLO alert demo, and reviewer-ready documentation (completed 2026-07-11)
 
 ## Phase Details
 
@@ -182,7 +182,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 06-03-PLAN.md — README reviewer funnel, performance table, alert demo + human verify (DOC-01–06, D-06–D-22)
+- [x] 06-03-PLAN.md — README reviewer funnel, performance table, alert demo + human verify (DOC-01–06, D-06–D-22)
 
 ## Progress
 
@@ -197,4 +197,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Local Dev Stack & Dashboards | 3/3 | Complete    | 2026-07-09 |
 | 4. CI/CD Pipeline | 2/2 | Complete    | 2026-07-09 |
 | 5. Kubernetes Deployment (via werf) | 3/3 | Complete    | 2026-07-10 |
-| 6. Polish, Differentiators & README | 2/3 | In Progress|  |
+| 6. Polish, Differentiators & README | 3/3 | Complete   | 2026-07-11 |
