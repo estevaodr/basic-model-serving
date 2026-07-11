@@ -48,9 +48,7 @@ def _script_lines_without_comments() -> str:
 
 def parse_status_distribution(hey_output: str) -> tuple[int, int]:
     """Mirror load-test.sh status-line parsing: total requests and non-200 count."""
-    status_line_pattern = re.compile(
-        r"^\s+\[(\d+)\]\s+(\d+)\s+responses", re.MULTILINE
-    )
+    status_line_pattern = re.compile(r"^\s+\[(\d+)\]\s+(\d+)\s+responses", re.MULTILINE)
     total_requests = 0
     non_200_count = 0
     for match in status_line_pattern.finditer(hey_output):
