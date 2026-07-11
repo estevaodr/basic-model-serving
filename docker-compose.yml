@@ -5,6 +5,11 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    # Benchmark tuning: TORCH_NUM_THREADS aligned with CPU limit (PERF-04 / Phase 1 D-04)
+    environment:
+      TORCH_NUM_THREADS: ${TORCH_NUM_THREADS:-2}
+    cpus: "2.0"
+    mem_limit: 2g
     healthcheck:
       test:
         [
