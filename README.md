@@ -63,6 +63,53 @@ flowchart TB
   Browser --> PROM
 ```
 
+## Performance Results
+
+Benchmark run against the **Docker Compose stack** (`docker compose up`) with `hey` load generator.
+
+| Metric | Value |
+|--------|------:|
+| p50 latency | 671 ms |
+| p95 latency | 798 ms |
+| p99 latency | 860 ms |
+| RPS | 14.83 |
+| Error rate | 0.0% (895/895 HTTP 200) |
+| Peak CPU (app container) | 740.17% |
+
+> **SLO note:** Portfolio target is p95 &lt; 100 ms. On the benchmark host below, p95 was **798 ms** under 10 concurrent workers — environment-specific. Tune `TORCH_NUM_THREADS` (see [Docker configuration](#configuration)), container CPU limits, and concurrency before drawing production conclusions. The sync `/predict` handler and ResNet-50 choice (see [Design Decisions](#design-decisions)) explain elevated latency under parallel load.
+
+**Run date (UTC):** 2026-07-11T00:29:34Z
+
+**Host specs:**
+
+| Spec | Value |
+|------|-------|
+| CPU cores | 8 |
+| Memory | 31 Gi total, 23 Gi available |
+| OS | Linux 6.17.0-35-generic (Ubuntu 24.04 kernel) x86_64 |
+| Docker | 29.6.1 |
+| Machine | t480 |
+
+**Reproduce:**
+
+```bash
+# Prerequisites: hey installed, compose stack healthy
+./scripts/load-test.sh
+```
+
+The script warms up with one `/predict`, then runs `hey -m POST -c 10 -z 60s` with a multipart body built from `tests/fixtures/sample.jpg`, sampling peak CPU via `docker stats` on the `app` container.
+
+Equivalent underlying command (simplified):
+
+```bash
+hey -m POST -c 10 -z 60s \
+  -H "Content-Type: multipart/form-data; boundary=----BenchmarkBoundary7MA4YWxkTrZu0gW" \
+  -D /path/to/multipart-body.bin \
+  http://localhost:8000/predict
+```
+
+Peak CPU from `docker stats` is per-container and can exceed 100% on multi-core hosts (740% ≈ 7.4 cores busy on an 8-core machine).
+
 ## Design Decisions
 
 ### werf for local Kubernetes deploys
