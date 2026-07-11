@@ -57,18 +57,18 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Performance
 
 - [x] **PERF-01**: p95 API latency is <100ms
-- [ ] **PERF-02**: API handles 10+ concurrent requests
+- [x] **PERF-02**: API handles 10+ concurrent requests
 - [x] **PERF-03**: CPU utilization stays <70% under normal load
 - [ ] **PERF-04**: PyTorch thread count is explicitly set to match the pod's CPU limit (avoids cgroup throttling)
 
 ### Documentation
 
-- [ ] **DOC-01**: README includes an architecture diagram
-- [ ] **DOC-02**: README includes a quickstart that gets the local stack running in <5 minutes
-- [ ] **DOC-03**: README documents key design decisions and rationale (including the werf choice and the manual-deploy CI/CD boundary)
-- [ ] **DOC-04**: README includes a limitations / "what I'd improve" section
-- [ ] **DOC-05**: README publishes load-test results (p50/p95/p99 latency, RPS) validating the <100ms claim
-- [ ] **DOC-06**: Grafana dashboard has an SLO alerting rule (e.g. latency or downtime threshold) demonstrated firing/resolving
+- [x] **DOC-01**: README includes an architecture diagram
+- [x] **DOC-02**: README includes a quickstart that gets the local stack running in <5 minutes
+- [x] **DOC-03**: README documents key design decisions and rationale (including the werf choice and the manual-deploy CI/CD boundary)
+- [x] **DOC-04**: README includes a limitations / "what I'd improve" section
+- [x] **DOC-05**: README publishes load-test results (p50/p95/p99 latency, RPS) validating the <100ms claim
+- [x] **DOC-06**: Grafana dashboard has an SLO alerting rule (e.g. latency or downtime threshold) demonstrated firing/resolving
 
 ## v2 Requirements
 
@@ -141,15 +141,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CI-03 | Phase 4 | Complete |
 | CI-04 | Phase 4 | Complete |
 | PERF-01 | Phase 6 | Complete |
-| PERF-02 | Phase 6 | Pending |
+| PERF-02 | Phase 6 | Complete |
 | PERF-03 | Phase 6 | Complete |
 | PERF-04 | Phase 5 | Pending |
-| DOC-01 | Phase 6 | Pending |
-| DOC-02 | Phase 6 | Pending |
-| DOC-03 | Phase 6 | Pending |
-| DOC-04 | Phase 6 | Pending |
-| DOC-05 | Phase 6 | Pending |
-| DOC-06 | Phase 6 | Pending |
+| DOC-01 | Phase 6 | Complete |
+| DOC-02 | Phase 6 | Complete |
+| DOC-03 | Phase 6 | Complete |
+| DOC-04 | Phase 6 | Complete |
+| DOC-05 | Phase 6 | Complete |
+| DOC-06 | Phase 6 | Complete |
 
 **Coverage:**
 
