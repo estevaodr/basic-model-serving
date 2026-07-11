@@ -56,9 +56,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Performance
 
-- [ ] **PERF-01**: p95 API latency is <100ms
+- [x] **PERF-01**: p95 API latency is <100ms
 - [ ] **PERF-02**: API handles 10+ concurrent requests
-- [ ] **PERF-03**: CPU utilization stays <70% under normal load
+- [x] **PERF-03**: CPU utilization stays <70% under normal load
 - [ ] **PERF-04**: PyTorch thread count is explicitly set to match the pod's CPU limit (avoids cgroup throttling)
 
 ### Documentation
@@ -140,9 +140,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CI-02 | Phase 4 | Complete |
 | CI-03 | Phase 4 | Complete |
 | CI-04 | Phase 4 | Complete |
-| PERF-01 | Phase 6 | Pending |
+| PERF-01 | Phase 6 | Complete |
 | PERF-02 | Phase 6 | Pending |
-| PERF-03 | Phase 6 | Pending |
+| PERF-03 | Phase 6 | Complete |
 | PERF-04 | Phase 5 | Pending |
 | DOC-01 | Phase 6 | Pending |
 | DOC-02 | Phase 6 | Pending |
